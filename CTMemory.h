@@ -47,6 +47,6 @@ void ctRelease(void *item);
  * every struct that want to use this function should always have a pointer refer to CTMemoryControl
  *
  * */
-int ctAlloc(size_t size);
+void *ctAlloc(size_t size);
 
 #endif

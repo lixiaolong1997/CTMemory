@@ -7,7 +7,10 @@ CC = clang
 
 HEADER_PATH = -I./greatest/ -I../
 
-all: test.run
+all: clean test.run
+
+test: clean test.run
+	./test.run -v | ./greatest/greenest
 
 test.run: test_main.c test_basic.o ctmemory.o
 	${CC} ${HEADER_PATH} ${CFLAGS} ${LDFLAGS} -pthread -g -o $@ test_main.c test_basic.o ctmemory.o

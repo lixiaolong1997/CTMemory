@@ -44,17 +44,26 @@ int CTMemoryControlDealloc(struct CTMemoryControl *memoryControl)
 void ctRetain(void *item)
 {
     struct CTMemoryControl *node = (struct CTMemoryControl *)item;
-    node->retainCount = 0;
+    pthread_mutex_lock(&(node->memoryMutexLock));
+    node->retainCount++;
+    pthread_mutex_unlock(&(node->memoryMutexLock));
 }
 
 void ctRelease(void *item)
 {
     struct CTMemoryControl *node = (struct CTMemoryControl *)item;
-    node->retainCount = 0;
+    pthread_mutex_lock(&(node->memoryMutexLock));
+    node->retainCount--;
+    if (node->retainCount == 0) {
+        node->dealloc(item);
+        pthread_mutex_destroy(&(node->memoryMutexLock));
+        free(item);
+        item = NULL;
+    }
+    pthread_mutex_unlock(&(node->memoryMutexLock));
 }
 
-int ctAlloc(size_t size)
+void *ctAlloc(size_t size)
 {
-    size = 0;
-    return 0;
+    return malloc(size);
 }
