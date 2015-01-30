@@ -7,6 +7,7 @@ int CTMemoryControlMake(struct CTMemoryControl **memoryControl, void (*deallocFu
     (*memoryControl)->dealloc = deallocFunction;
 
     struct CTMemoryControl *target = *memoryControl;
+    target->memoryMutexLock = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
 
     int errno;
     pthread_mutexattr_t mutexAttr;
@@ -23,7 +24,7 @@ int CTMemoryControlMake(struct CTMemoryControl **memoryControl, void (*deallocFu
         return 1;
     }
 
-    errno = pthread_mutex_init(&(target->memoryMutexLock), &mutexAttr);
+    errno = pthread_mutex_init(target->memoryMutexLock, &mutexAttr);
     if (errno) {
         perror("[ CTMemory::CTMemoryControlMake::pthread_mutex_init ] ");
         return 1;
@@ -46,23 +47,23 @@ int CTMemoryControlDealloc(struct CTMemoryControl *memoryControl)
 void ctRetain(void *item)
 {
     struct CTMemoryControl *node = (struct CTMemoryControl *)item;
-    pthread_mutex_lock(&(node->memoryMutexLock));
+    pthread_mutex_lock(node->memoryMutexLock);
     node->retainCount++;
-    pthread_mutex_unlock(&(node->memoryMutexLock));
+    pthread_mutex_unlock(node->memoryMutexLock);
 }
 
 void ctRelease(void *item)
 {
     struct CTMemoryControl *node = (struct CTMemoryControl *)item;
-    pthread_mutex_lock(&(node->memoryMutexLock));
+    pthread_mutex_lock(node->memoryMutexLock);
     node->retainCount--;
     if (node->retainCount == 0) {
         node->dealloc(item);
-        pthread_mutex_destroy(&(node->memoryMutexLock));
+        pthread_mutex_destroy(node->memoryMutexLock);
         free(item);
         item = NULL;
     }
-    pthread_mutex_unlock(&(node->memoryMutexLock));
+    pthread_mutex_unlock(node->memoryMutexLock);
 }
 
 void *ctAlloc(size_t size)

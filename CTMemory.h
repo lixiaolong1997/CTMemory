@@ -10,7 +10,7 @@
  * */
 struct CTMemoryControl {
     void (*dealloc)(void *item); /* the dealloc function of your specific item. */
-    pthread_mutex_t memoryMutexLock;
+    pthread_mutex_t *memoryMutexLock;
     int retainCount;
 };
 
