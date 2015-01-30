@@ -5,155 +5,68 @@
 #include "greatest.h"
 #include "CTMemory.h"
 
-SUITE(test_basic);
+/* extern struct CTMemoryRecord; */
+/* extern struct CTMemoryRecordList; */
 
-void deallocCTDerivedStruct(void *item);
+extern struct CTMemoryRecord * _findRecord(void *recordedMemoryPointer);
+extern struct CTMemoryRecordList * _sharedMemoryRecordList(void);
+extern struct CTMemoryRecord * _createCTMemoryRecord(void *recordedMemoryPointer);
+extern void _deleteRecord(struct CTMemoryRecord *record);
+
+SUITE(test_basic);
 
 struct test_CTDerivedStruct
 {
-    struct CTMemoryControl *memoryControl;
     int data;
     int *pointer;
 };
 
-void deallocCTDerivedStruct(void *item){
-    struct test_CTDerivedStruct *node = (struct test_CTDerivedStruct *)item;
-    ctRelease(node->pointer);
-    CTMemoryControlDealloc(node->memoryControl);
+void releaseCTDerivedStruct(struct test_CTDerivedStruct *item);
+void releaseCTDerivedStruct(struct test_CTDerivedStruct *item){
+    ctRelease(item->pointer);
+    ctRelease(item);
 }
 
-/********************************** CTMemoryControlMake *************************************/
-
-TEST test_CTMemoryControlMake_heap_alloced()
+TEST test_ctRetain_ctAlloc_ctRelease(void)
 {
-    struct test_CTDerivedStruct *item = (struct test_CTDerivedStruct *)malloc(sizeof(struct test_CTDerivedStruct));
+    struct test_CTDerivedStruct *item = (struct test_CTDerivedStruct *)ctAlloc(sizeof(struct test_CTDerivedStruct));
     item->data = 10;
-    item->pointer = (int *)malloc(1);
+    item->pointer = (int *)ctAlloc(1);
+    releaseCTDerivedStruct(item);
 
-    int errno = CTMemoryControlMake(&item->memoryControl, deallocCTDerivedStruct);
-
-    ASSERT(errno == 0);
-    ASSERT(item->memoryControl != NULL);
-    ASSERT(item->memoryControl->memoryMutexLock != NULL);
-    ASSERT(pthread_mutex_lock(item->memoryControl->memoryMutexLock) == 0);
-    ASSERT(pthread_mutex_unlock(item->memoryControl->memoryMutexLock) == 0);
+    ASSERT(item->pointer == NULL);
+    ASSERT(item == NULL);
 
     PASS();
 }
 
-void * test_CTMemoryControlMake_heap_alloced_multi_thread_function(void *args)
+TEST test_private_methods(void)
 {
-    struct test_CTDerivedStruct *item = (struct test_CTDerivedStruct *)malloc(sizeof(struct test_CTDerivedStruct));
+    struct CTMemoryRecordList *list = NULL;
+    list = _sharedMemoryRecordList();
+    ASSERT(list != NULL);
+
+    struct test_CTDerivedStruct *item = (struct test_CTDerivedStruct *)ctAlloc(sizeof(struct test_CTDerivedStruct));
     item->data = 10;
-    item->pointer = (int *)malloc(1);
+    item->pointer = (int *)ctAlloc(1);
+    releaseCTDerivedStruct(item);
 
-    int errno = CTMemoryControlMake(&item->memoryControl, deallocCTDerivedStruct);
-    pthread_exit(NULL);
-    return NULL;
-}
+    struct CTMemoryRecord *record = NULL;
+    record = _findRecord(item);
+    ASSERT(record != NULL);
 
-TEST test_CTMemoryControlMake_heap_alloced_multi_thread()
-{
-    PASS();
-}
+    record = NULL;
+    record = _createCTMemoryRecord((void *)0x12345);
+    ASSERT(record != NULL);
+    ASSERT(record->recordedMemoryPointer == 0x12345);
 
-TEST test_CTMemoryControlMake_stack_alloced()
-{
-    struct test_CTDerivedStruct item;
-    item.data = 10;
-    item.pointer = (int *)malloc(1);
-
-    int errno = CTMemoryControlMake(&item.memoryControl, deallocCTDerivedStruct);
-
-    ASSERT(errno == 0);
-    ASSERT(item.memoryControl != NULL);
-    ASSERT(&(item.memoryControl->memoryMutexLock) != NULL);
-    ASSERT(pthread_mutex_lock(item.memoryControl->memoryMutexLock) == 0);
-    ASSERT(pthread_mutex_unlock(item.memoryControl->memoryMutexLock) == 0);
+    _deleteRecord(record);
+    ASSERT(record == NULL);
 
     PASS();
 }
-
-TEST test_CTMemoryControlMake_stack_alloced_multi_thread()
-{
-    PASS();
-}
-
-/********************************** ctRetain *************************************/
-
-TEST test_ctRetain_stack()
-{
-    PASS();
-}
-
-TEST test_ctRetain_stack_multi_thread()
-{
-    PASS();
-}
-
-TEST test_ctRetain_heap()
-{
-    PASS();
-}
-
-TEST test_ctRetain_heap_multi_thread()
-{
-    PASS();
-}
-
-/********************************** ctRelease *************************************/
-
-TEST test_ctRelease_stack()
-{
-    PASS();
-}
-
-TEST test_ctRelease_stack_muti_thread()
-{
-    PASS();
-}
-
-TEST test_ctRelease_heap()
-{
-    PASS();
-}
-
-TEST test_ctRelease_heap_multi_thread()
-{
-    PASS();
-}
-
-/********************************** ctAlloc *************************************/
-
-TEST test_ctAlloc()
-{
-    PASS();
-}
-
-TEST test_ctAlloc_multi_thread()
-{
-    PASS();
-}
-
-/********************************** TEST CASE ENDS *************************************/
 
 SUITE(test_basic) {
-
-    RUN_TEST(test_CTMemoryControlMake_heap_alloced);
-    RUN_TEST(test_CTMemoryControlMake_heap_alloced_multi_thread);
-    RUN_TEST(test_CTMemoryControlMake_stack_alloced);
-    RUN_TEST(test_CTMemoryControlMake_stack_alloced_multi_thread);
-
-    RUN_TEST(test_ctRetain_stack);
-    RUN_TEST(test_ctRetain_stack_multi_thread);
-    RUN_TEST(test_ctRetain_heap);
-    RUN_TEST(test_ctRetain_heap_multi_thread);
-
-    RUN_TEST(test_ctRelease_heap);
-    RUN_TEST(test_ctRelease_heap_multi_thread);
-    RUN_TEST(test_ctRelease_stack);
-    RUN_TEST(test_ctRelease_stack_muti_thread);
-
-    RUN_TEST(test_ctAlloc);
-    RUN_TEST(test_ctAlloc_multi_thread);
+    RUN_TEST(test_ctRetain_ctAlloc_ctRelease);
+    RUN_TEST(test_private_methods);
 }
