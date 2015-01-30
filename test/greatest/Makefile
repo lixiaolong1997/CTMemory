@@ -3,6 +3,8 @@ CFLAGS += -Wmissing-prototypes
 CFLAGS += -Wstrict-prototypes
 CFLAGS += -Wmissing-declarations
 
+CC = clang
+
 # Uncomment to demo c99 parametric testing.
 #CFLAGS += -std=c99
 

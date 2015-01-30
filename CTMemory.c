@@ -37,16 +37,24 @@ int CTMemoryControlMake(struct CTMemoryControl *memoryControl, void (*deallocFun
 
 int CTMemoryControlDealloc(struct CTMemoryControl *memoryControl)
 {
+    memoryControl->retainCount = 0;
+    return 0;
 }
 
 void ctRetain(void *item)
 {
+    struct CTMemoryControl *node = (struct CTMemoryControl *)item;
+    node->retainCount = 0;
 }
 
 void ctRelease(void *item)
 {
+    struct CTMemoryControl *node = (struct CTMemoryControl *)item;
+    node->retainCount = 0;
 }
 
 int ctAlloc(size_t size)
 {
+    size = 0;
+    return 0;
 }

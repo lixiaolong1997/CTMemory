@@ -9,7 +9,7 @@
  * every dynamic alloc struct should have a pointer named "memoryControl" refer to this struct
  * */
 struct CTMemoryControl {
-    void (*dealloc)(void *item); // the dealloc function of your specific item.
+    void (*dealloc)(void *item); /* the dealloc function of your specific item. */
     pthread_mutex_t memoryMutexLock;
     int retainCount;
 };

@@ -7,6 +7,8 @@
 
 SUITE(test_basic);
 
+void deallocCTDerivedStruct(void *item);
+
 struct test_CTDerivedStruct
 {
     struct CTMemoryControl *memoryControl;
@@ -45,7 +47,7 @@ TEST test_CTMemoryControlMake_stack_alloced()
     PASS();
 }
 
-GREATEST_SUITE(test_basic) {
+SUITE(test_basic) {
     RUN_TEST(test_CTMemoryControlMake_heap_alloced);
     RUN_TEST(test_CTMemoryControlMake_stack_alloced);
 }
