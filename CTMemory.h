@@ -19,7 +19,7 @@ struct CTMemoryControl {
  * initialize a CTMemoryControl
  *
  * */
-int CTMemoryControlMake(struct CTMemoryControl *memoryControl, void (*deallocFunction)(void *item));
+int CTMemoryControlMake(struct CTMemoryControl **memoryControl, void (*deallocFunction)(void *item));
 
 /*
  *

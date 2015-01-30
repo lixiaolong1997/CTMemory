@@ -1,10 +1,12 @@
 #include "CTMemory.h"
 
-int CTMemoryControlMake(struct CTMemoryControl *memoryControl, void (*deallocFunction)(void *item))
+int CTMemoryControlMake(struct CTMemoryControl **memoryControl, void (*deallocFunction)(void *item))
 {
-    memoryControl = (struct CTMemoryControl *)malloc(sizeof(struct CTMemoryControl));
-    memoryControl->retainCount = 1;
-    memoryControl->dealloc = deallocFunction;
+    (*memoryControl) = (struct CTMemoryControl *)malloc(sizeof(struct CTMemoryControl));
+    (*memoryControl)->retainCount = 1;
+    (*memoryControl)->dealloc = deallocFunction;
+
+    struct CTMemoryControl *target = *memoryControl;
 
     int errno;
     pthread_mutexattr_t mutexAttr;
@@ -21,7 +23,7 @@ int CTMemoryControlMake(struct CTMemoryControl *memoryControl, void (*deallocFun
         return 1;
     }
 
-    errno = pthread_mutex_init(&(memoryControl->memoryMutexLock), &mutexAttr);
+    errno = pthread_mutex_init(&(target->memoryMutexLock), &mutexAttr);
     if (errno) {
         perror("[ CTMemory::CTMemoryControlMake::pthread_mutex_init ] ");
         return 1;

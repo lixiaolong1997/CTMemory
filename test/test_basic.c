@@ -29,9 +29,11 @@ TEST test_CTMemoryControlMake_heap_alloced()
     item->data = 10;
     item->pointer = (int *)malloc(1);
 
-    int errno = CTMemoryControlMake(item->memoryControl, deallocCTDerivedStruct);
+    int errno = CTMemoryControlMake(&item->memoryControl, deallocCTDerivedStruct);
 
     ASSERT(errno == 0);
+    ASSERT(item->memoryControl != NULL);
+    ASSERT(&(item->memoryControl->memoryMutexLock) != NULL);
     ASSERT(pthread_mutex_lock(&(item->memoryControl->memoryMutexLock)) == 0);
     ASSERT(pthread_mutex_unlock(&(item->memoryControl->memoryMutexLock)) == 0);
 
@@ -44,7 +46,7 @@ TEST test_CTMemoryControlMake_stack_alloced()
     item.data = 10;
     item.pointer = (int *)malloc(1);
 
-    int errno = CTMemoryControlMake(item.memoryControl, deallocCTDerivedStruct);
+    int errno = CTMemoryControlMake(&item.memoryControl, deallocCTDerivedStruct);
 
     ASSERT(errno == 0);
     /* ASSERT(pthread_mutex_lock(&(item.memoryControl->memoryMutexLock)) == 0); */
