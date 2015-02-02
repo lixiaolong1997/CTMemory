@@ -24,6 +24,26 @@ void deleteCTRBTreeNode(uint64_t key, struct CTRBTreeRoot *root)
     struct CTRBTreeNode *nodeToDelete = findCTRBTreeNode(key, root);
     if (nodeToDelete == NULL) {
         return;
+    } else {
+        struct CTRBTreeNode *parent = nodeToDelete->parent;
+        struct CTRBTreeNode *left = nodeToDelete->left;
+        struct CTRBTreeNode *right = nodeToDelete->right;
+
+        if (nodeToDelete->key > parent->key) {
+            // node is right node of parent
+            parent->right = right;
+            if (left != NULL) {
+                insertCTRBTreeNode(left, root);
+            }
+        }
+
+        if (nodeToDelete->key < parent->key) {
+            // node is left node of parent
+            parent->left = left;
+            if (right != NULL) {
+                insertCTRBTreeNode(right, root);
+            }
+        }
     }
 }
 
