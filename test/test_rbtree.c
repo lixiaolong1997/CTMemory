@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <time.h>
 #include <pthread.h>
 
 #include "greatest.h"
@@ -93,6 +94,17 @@ TEST test_insertRBTreeNode()
     insertCTRBTreeNode(heapNode, root);
     foundNode = findCTRBTreeNode(5, root);
     ASSERT(foundNode != NULL);
+
+    int count = 10;
+    srand(time(NULL));
+    while (count --> 0) {
+        struct CTRBTreeNode *heapNode = (struct CTRBTreeNode *)malloc(sizeof(struct CTRBTreeNode));
+        heapNode->key = rand();
+        heapNode->value = (void *)"test_insertRBTreeNode";
+        insertCTRBTreeNode(heapNode, root);
+    }
+
+    cleanTree(root, false);
 
     PASS();
 }
