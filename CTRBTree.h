@@ -7,16 +7,15 @@
 #include "stdlib.h"
 
 struct CTRBTreeNode {
-    struct CTRBTreeNode *childNode[2];
+    int8_t balance;
     struct CTRBTreeNode *parent;
+    struct CTRBTreeNode *childNode[2];
 
-    uint8_t height;
     uint64_t key;
     void *value;
 };
 
 struct CTRBTreeRoot {
-    bool isEmpty;
     struct CTRBTreeNode *rootNode;
 };
 
