@@ -3,7 +3,7 @@
 void _printNode(struct CTRBTreeNode *node);
 struct CTRBTreeNode * _maxNode(struct CTRBTreeNode *rootNode);
 
-struct CTRBTreeNode * _rotate(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
+struct CTRBTreeNode * _rotate(struct CTRBTreeNode *node, struct CTRBTreeRoot *root, bool *isRotated);
 void _maintain(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
 
 struct CTRBTreeNode * _rotateLL(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
@@ -53,7 +53,8 @@ void deleteCTRBTreeNode(uint64_t key, struct CTRBTreeRoot *root)
         parent->childNode[1] = leftMaxNode ? leftMaxNode : rightNode;
     }
 
-    _rotate(parent, root);
+    bool isRotated;
+    _rotate(parent, root, &isRotated);
     free(nodeToDelete);
 }
 
@@ -147,28 +148,41 @@ void _maintain(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
             break;
         }
 
-        iterator = _rotate(iterator->parent, root);
+        bool isRotated;
+        iterator = _rotate(iterator->parent, root, &isRotated);
+        if (isRotated) {
+            break;
+        }
     }
 }
 
-struct CTRBTreeNode * _rotate(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
+struct CTRBTreeNode * _rotate(struct CTRBTreeNode *node, struct CTRBTreeRoot *root, bool *isRotated)
 {
+    *isRotated = false;
     struct CTRBTreeNode *newTopNode = node;
     if (node->balance == 2) {
         if (node->childNode[1]->balance == 1) {
             newTopNode = _rotateLL(node, root);
+            *isRotated = true;
+            return newTopNode;
         }
         if (node->childNode[1]->balance == -1) {
             newTopNode = _rotateLR(node, root);
+            *isRotated = true;
+            return newTopNode;
         }
     }
 
     if (node->balance == -2) {
         if (node->childNode[0]->balance == 1) {
             newTopNode = _rotateRL(node, root);
+            *isRotated = true;
+            return newTopNode;
         }
         if (node->childNode[0]->balance == -1) {
             newTopNode = _rotateRR(node, root);
+            *isRotated = true;
+            return newTopNode;
         }
     }
     return newTopNode;

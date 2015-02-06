@@ -241,9 +241,9 @@ TEST test_insertRBTreeNode()
      *     /   \
      *    2     6
      *   / \   / \
-     *  1   3 5   10
-     *            /\
-     *           7  9
+     *  1   3 5   9
+     *           / \
+     *          7  10
      *
      * */
     node = createNode(10);
@@ -264,13 +264,96 @@ TEST test_insertRBTreeNode()
     nodeToTest = root->rootNode->childNode[1]->childNode[0];
     ASSERT(nodeToTest->key == 5);
     nodeToTest = root->rootNode->childNode[1]->childNode[1];
-    ASSERT(nodeToTest->key == 10);
+    ASSERT(nodeToTest->key == 9);
     nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[0];
     ASSERT(nodeToTest->key == 7);
     nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[1];
+    ASSERT(nodeToTest->key == 10);
+
+
+    /*
+     * add 50, 60, 70, 80, 90, 100, 75, 78 to test RL rotation
+     *
+     *             9
+     *       /           \
+     *      4            70
+     *    /   \       /      \
+     *   2     6     50      90
+     *  / \   / \   /  \    /  \
+     * 1   3 5   7 10  60  78  100
+     *                    /  \
+     *                   75  80
+     *
+     * */
+    node = createNode(50);
+    insertCTRBTreeNode(node, root);
+
+    nodeToTest = root->rootNode->childNode[1];
+    ASSERT(nodeToTest->key == 9);
+    nodeToTest = root->rootNode->childNode[1]->childNode[0];
+    ASSERT(nodeToTest->key == 6);
+    nodeToTest = root->rootNode->childNode[1]->childNode[1];
+    ASSERT(nodeToTest->key == 10);
+    nodeToTest = root->rootNode->childNode[1]->childNode[0]->childNode[0];
+    ASSERT(nodeToTest->key == 5);
+    nodeToTest = root->rootNode->childNode[1]->childNode[0]->childNode[1];
+    ASSERT(nodeToTest->key == 7);
+    nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[1];
+    ASSERT(nodeToTest->key == 50);
+
+    node = createNode(60);
+    insertCTRBTreeNode(node, root);
+    node = createNode(70);
+    insertCTRBTreeNode(node, root);
+    node = createNode(80);
+    insertCTRBTreeNode(node, root);
+    node = createNode(90);
+    insertCTRBTreeNode(node, root);
+    node = createNode(100);
+    insertCTRBTreeNode(node, root);
+    node = createNode(75);
+    insertCTRBTreeNode(node, root);
+    node = createNode(78);
+    insertCTRBTreeNode(node, root);
+
+    nodeToTest = root->rootNode;
     ASSERT(nodeToTest->key == 9);
 
+    nodeToTest = root->rootNode->childNode[0];
+    ASSERT(nodeToTest->key == 4);
+    nodeToTest = root->rootNode->childNode[1];
+    ASSERT(nodeToTest->key == 70);
 
+    nodeToTest = root->rootNode->childNode[0]->childNode[0];
+    ASSERT(nodeToTest->key == 2);
+    nodeToTest = root->rootNode->childNode[0]->childNode[1];
+    ASSERT(nodeToTest->key == 6);
+    nodeToTest = root->rootNode->childNode[1]->childNode[0];
+    ASSERT(nodeToTest->key == 50);
+    nodeToTest = root->rootNode->childNode[1]->childNode[1];
+    ASSERT(nodeToTest->key == 90);
+
+    nodeToTest = root->rootNode->childNode[0]->childNode[0]->childNode[0];
+    ASSERT(nodeToTest->key == 1);
+    nodeToTest = root->rootNode->childNode[0]->childNode[0]->childNode[1];
+    ASSERT(nodeToTest->key == 3);
+    nodeToTest = root->rootNode->childNode[0]->childNode[1]->childNode[0];
+    ASSERT(nodeToTest->key == 5);
+    nodeToTest = root->rootNode->childNode[0]->childNode[1]->childNode[1];
+    ASSERT(nodeToTest->key == 7);
+    nodeToTest = root->rootNode->childNode[1]->childNode[0]->childNode[0];
+    ASSERT(nodeToTest->key == 10);
+    nodeToTest = root->rootNode->childNode[1]->childNode[0]->childNode[1];
+    ASSERT(nodeToTest->key == 60);
+    nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[0];
+    ASSERT(nodeToTest->key == 78);
+    nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[1];
+    ASSERT(nodeToTest->key == 100);
+
+    nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[0]->childNode[0];
+    ASSERT(nodeToTest->key == 75);
+    nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[0]->childNode[1];
+    ASSERT(nodeToTest->key == 80);
 
     PASS();
 }
