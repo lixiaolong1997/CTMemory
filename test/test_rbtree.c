@@ -69,6 +69,30 @@ TEST test_insertRBTreeNode()
     root->rootNode = NULL;
 
     /*
+     * 7 10 9
+     *
+     *  7
+     *   \            9
+     *   10  ---->   / \
+     *   /          7  10
+     *  9
+     *
+     * */
+    /* struct CTRBTreeNode *testNode = createNode(4); */
+    /* testNode = createNode(7); */
+    /* insertCTRBTreeNode(testNode, root); */
+    /* testNode = createNode(10); */
+    /* insertCTRBTreeNode(testNode, root); */
+    /* testNode = createNode(9); */
+    /* insertCTRBTreeNode(testNode, root); */
+
+    /* ASSERT(root->rootNode->key == 9); */
+    /* ASSERT(root->rootNode->childNode[0]->key == 7); */
+    /* ASSERT(root->rootNode->childNode[1]->key == 10); */
+
+    /* PASS(); */
+
+    /*
      * 4 2 1 3 6 5 7 should be
      *
      *      4
