@@ -133,6 +133,9 @@ void _maintain(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
     struct CTRBTreeNode *iterator = node;
 
     while (iterator->parent) {
+        /*
+         * 插入10，9之后，经过一次旋转，应该不需要再往上跑了
+         * */
         if (iterator == iterator->parent->childNode[1]) {
             iterator->parent->balance++;
         }
