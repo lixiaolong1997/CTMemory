@@ -132,6 +132,7 @@ void cleanTree(struct CTRBTreeRoot *root, bool shouldPrint)
 void _maintain(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
 {
     struct CTRBTreeNode *iterator = node;
+
     while (iterator->parent) {
         if (iterator == iterator->parent->childNode[1]) {
             iterator->parent->balance++;
@@ -139,10 +140,9 @@ void _maintain(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
         if (iterator == iterator->parent->childNode[0]) {
             iterator->parent->balance--;
         }
+
         iterator = iterator->parent;
-        if (_rotate(iterator, root)) {
-            break;
-        }
+        _rotate(iterator, root);
     }
 }
 
@@ -157,7 +157,9 @@ bool _rotate(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
             _rotateLR(node, root);
         }
         node->balance = 0;
-        node->childNode[1]->balance = 0;
+        if (node->childNode[1]) {
+            node->childNode[1]->balance = 0;
+        }
         isRotated = true;
     }
 
@@ -169,7 +171,9 @@ bool _rotate(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
             _rotateRR(node, root);
         }
         node->balance = 0;
-        node->childNode[0]->balance = 0;
+        if (node->childNode[0]) {
+            node->childNode[0]->balance = 0;
+        }
         isRotated = true;
     }
     return isRotated;
@@ -191,12 +195,12 @@ struct CTRBTreeNode * _maxNode(struct CTRBTreeNode *rootNode)
 /*
  *
  *   aNode (node)
- *     \
- *      \                       bNode
- *     bNode       ----\        /   \
- *        \        ----/       /     \
- *         \                aNode   cNode
- *        cNode
+ *      \
+ *       \             \         bNode
+ *      bNode       ----\        /   \
+ *         \        ----/       /     \
+ *          \          /     aNode   cNode
+ *         cNode
  *
  * */
 void _rotateLL(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
@@ -207,12 +211,18 @@ void _rotateLL(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
 
     if (parentNode) {
         parentNode->childNode[(parentNode->key > aNode->key)?0:1] = bNode;
+        bNode->parent = parentNode;
     } else {
         root->rootNode = bNode;
+        bNode->parent = NULL;
     }
 
     aNode->childNode[1] = bNode->childNode[0];
     bNode->childNode[0] = aNode;
+    aNode->parent = bNode;
+
+    aNode->balance-=2;
+    bNode->balance--;
 }
 
 /*
@@ -220,10 +230,10 @@ void _rotateLL(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
  *
  *         aNode
  *          /
- *         /                   bNode
+ *         /          \        bNode
  *      bNode      ----\       /   \
  *       /         ----/      /     \
- *      /                  cNode   aNode
+ *      /             /    cNode   aNode
  *   cNode
  *
  * */
@@ -235,28 +245,51 @@ void _rotateRR(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
 
     if (parentNode) {
         parentNode->childNode[(parentNode->key > aNode->key)?0:1] = bNode;
+        bNode->parent = parentNode;
     } else {
         root->rootNode = bNode;
+        bNode->parent = NULL;
     }
 
     aNode->childNode[0] = bNode->childNode[1];
-    aNode->childNode[0] = aNode;
+    bNode->childNode[1] = aNode;
+    aNode->parent = bNode;
+
+    aNode->balance+=2;
+    bNode->balance++;
 }
 
 /*
  *
  *   aNode
  *      \
- *       \                     cNode
+ *       \           \         cNode
  *      bNode     ----\        /   \
  *       /        ----/       /     \
- *      /                  aNode   bNode
+ *      /            /     aNode   bNode
  *   cNode
  *
  * */
 void _rotateLR(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
 {
-    _rotateRR(node->childNode[1], root);
+    struct CTRBTreeNode *aNode = node;
+    struct CTRBTreeNode *bNode = node->childNode[1];
+    struct CTRBTreeNode *cNode = bNode->childNode[0];
+
+    aNode->childNode[1] = cNode;
+    cNode->parent = aNode;
+
+    bNode->childNode[0] = cNode->childNode[1];
+    if (cNode->childNode[1]) {
+        cNode->childNode[1]->parent = bNode;
+    }
+
+    cNode->childNode[1] = bNode;
+    bNode->parent = cNode;
+
+    bNode->balance++;
+    cNode->balance++;
+
     _rotateLL(node, root);
 }
 
@@ -264,15 +297,32 @@ void _rotateLR(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
  *
  *      aNode
  *       /
- *      /                     bNode
+ *      /           \         bNode
  *   bNode       ----\        /   \
  *      \        ----/       /     \
- *       \                cNode   aNode
+ *       \          /     cNode   aNode
  *      cNode
  *
  * */
 void _rotateRL(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
 {
-    _rotateLL(node->childNode[0], root);
+    struct CTRBTreeNode *aNode = node;
+    struct CTRBTreeNode *bNode = node->childNode[0];
+    struct CTRBTreeNode *cNode = bNode->childNode[1];
+
+    aNode->childNode[0] = cNode;
+    cNode->parent = aNode;
+
+    bNode->childNode[1] = cNode->childNode[0];
+    if (cNode->childNode[0]) {
+        cNode->childNode[0]->parent = bNode;
+    }
+
+    cNode->childNode[0] = bNode;
+    bNode->parent = cNode;
+
+    cNode->balance--;
+    bNode->balance--;
+
     _rotateRR(node, root);
 }

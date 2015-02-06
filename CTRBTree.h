@@ -7,7 +7,7 @@
 #include "stdlib.h"
 
 struct CTRBTreeNode {
-    int8_t balance;
+    int balance;
     struct CTRBTreeNode *parent;
     struct CTRBTreeNode *childNode[2];
 
