@@ -13,10 +13,13 @@ struct CTRBTreeNode * _rotateRL(struct CTRBTreeNode *node, struct CTRBTreeRoot *
 
 int _numberOfChild(struct CTRBTreeNode *node);
 int _nodeIndex(struct CTRBTreeNode *node);
-struct CTRBTreeNode * _deleteLeafNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
-struct CTRBTreeNode * _deleteOneChildNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
-struct CTRBTreeNode * _deleteTwoChildrenNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
-void ctFreeNode(struct CTRBTreeNode *node);
+struct CTRBTreeNode * _rightMinNode(struct CTRBTreeNode *node)
+
+bool _deleteLeafNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
+bool _deleteOneChildNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
+bool _deleteTwoChildrenNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
+
+void _ctNodeFree(struct CTRBTreeNode *node);
 
 
 
@@ -53,15 +56,18 @@ void deleteCTRBTreeNode(uint64_t key, struct CTRBTreeRoot *root)
 
     int numberOfChild = _numberOfChild(nodeToDelete);
     struct CTRBTreeNode *newTopNode = NULL;
+    bool isHeightChanged = false;
     if (numberOfChild == 0) {
-        newTopNode = _deleteLeafNode(nodeToDelete, root);
+        isHeightChanged = _deleteLeafNode(nodeToDelete, root);
     }
     if (numberOfChild == 1) {
-        newTopNode = _deleteOneChildNode(nodeToDelete, root);
+        isHeightChanged = _deleteOneChildNode(nodeToDelete, root);
     }
     if (numberOfChild == 2) {
-        newTopNode = _deleteTwoChildrenNode(nodeToDelete, root);
+        isHeightChanged = _deleteTwoChildrenNode(nodeToDelete, root);
     }
+
+    _ctNodeFree(node);
 }
 
 void insertCTRBTreeNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
@@ -194,15 +200,15 @@ struct CTRBTreeNode * _rotate(struct CTRBTreeNode *node, struct CTRBTreeRoot *ro
     return newTopNode;
 }
 
-struct CTRBTreeNode * _maxNode(struct CTRBTreeNode *rootNode)
+struct CTRBTreeNode * _rightMinNode(struct CTRBTreeNode *node)
 {
-    if (rootNode == NULL) {
+    if (node == NULL) {
         return NULL;
     }
 
-    struct CTRBTreeNode *foundedNode = rootNode;
-    while (foundedNode->childNode[1]) {
-        foundedNode = foundedNode->childNode[1];
+    struct CTRBTreeNode *foundedNode = node;
+    while (foundedNode->childNode[0]) {
+        foundedNode = foundedNode->childNode[0];
     }
     return foundedNode;
 }
@@ -366,12 +372,11 @@ int _numberOfChild(struct CTRBTreeNode *node)
     return result;
 }
 
-struct CTRBTreeNode * _deleteLeafNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
+bool _deleteLeafNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
 {
     if (node->parent == NULL) {
         root->rootNode = NULL;
-        ctFreeNode(node);
-        return NULL;
+        return false;
     }
 
     int nodeIndex = _nodeIndex(node);
@@ -383,38 +388,46 @@ struct CTRBTreeNode * _deleteLeafNode(struct CTRBTreeNode *node, struct CTRBTree
         node->parent->balance++;
     }
 
-    ctFreeNode(node);
-    return node->parent;
+    return true;
 }
 
-struct CTRBTreeNode * _deleteOneChildNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
+bool _deleteOneChildNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
 {
-    struct CTRBTreeNode *child = node->childNode[0] ? node->childNode[0] : node->childNode[1];
-    struct CTRBTreeNode *parent = node->parent;
-    if (parent == NULL) {
+    struct CTRBTreeNode *childNode = node->childNode[0] ? node->childNode[0] : node->childNode[1];
+    struct CTRBTreeNode *parentNode = node->parent;
+    if (parentNode == NULL) {
         root->rootNode = childNode;
         childNode->parent = NULL;
-        ctFreeNode(node);
-        return childNode;
+        return false;
     }
 
     int nodeIndex = _nodeIndex(node);
-    child->parent = parent;
-    parent->childNode[nodeIndex] = child;
+    childNode->parent = parentNode;
+    parentNode->childNode[nodeIndex] = childNode;
 
     if (nodeIndex == 1) {
-        parent->balance--;
+        parentNode->balance--;
     }
     if (nodeIndex == 0) {
-        parent->balance++;
+        parentNode->balance++;
     }
 
-    ctFreeNode(node);
-    return node->parent;
+    return true;
 }
 
-struct CTRBTreeNode * _deleteTwoChildrenNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
+bool _deleteTwoChildrenNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
 {
+    struct CTRBTreeNode *leftNode = node->childNode[0];
+    struct CTRBTreeNode *rightNode = node->childNode[1];
+    struct CTRBTreeNode *parentNode = node->parent;
+    struct CTRBTreeNode *rightMinNode = _rightMinNode(node);
+
+    if (parentNode == NULL) {
+    }
+
+    
+
+    int nodeIndex = _nodeIndex(node);
 }
 
 int _nodeIndex(struct CTRBTreeNode *node)
@@ -426,6 +439,6 @@ int _nodeIndex(struct CTRBTreeNode *node)
     return index;
 }
 
-void ctFreeNode(struct CTRBTreeNode *node)
+void _ctNodeFree(struct CTRBTreeNode *node)
 {
 }
