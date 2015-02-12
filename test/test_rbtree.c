@@ -370,7 +370,6 @@ struct CTRBTreeNode * createNode(uint64_t key)
 {
     struct CTRBTreeNode *node = (struct CTRBTreeNode *)malloc(sizeof(struct CTRBTreeNode));
     node->key = key;
-    node->balance = 0;
     node->parent = NULL;
     node->childNode[0] = NULL;
     node->childNode[1] = NULL;
