@@ -39,23 +39,6 @@ void deleteCTRBTreeNode(uint64_t key, struct CTRBTreeRoot *root)
     if (nodeToDelete == NULL) {
         return;
     }
-
-    struct CTRBTreeNode *parent = nodeToDelete->parent;
-    struct CTRBTreeNode *leftMaxNode = _maxNode(nodeToDelete->childNode[0]);
-    struct CTRBTreeNode *rightNode = nodeToDelete->childNode[1];
-
-    if (nodeToDelete == parent->childNode[0]) {
-        parent->balance++;
-        parent->childNode[0] = leftMaxNode ? leftMaxNode : rightNode;
-    }
-    if (nodeToDelete == parent->childNode[1]) {
-        parent->balance--;
-        parent->childNode[1] = leftMaxNode ? leftMaxNode : rightNode;
-    }
-
-    bool isRotated;
-    _rotate(parent, root, &isRotated);
-    free(nodeToDelete);
 }
 
 void insertCTRBTreeNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
