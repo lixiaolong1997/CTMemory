@@ -12,9 +12,11 @@ struct CTRBTreeNode * _rotateLR(struct CTRBTreeNode *node, struct CTRBTreeRoot *
 struct CTRBTreeNode * _rotateRL(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
 
 int _numberOfChild(struct CTRBTreeNode *node);
+int _nodeIndex(struct CTRBTreeNode *node);
 struct CTRBTreeNode * _deleteLeafNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
 struct CTRBTreeNode * _deleteOneChildNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
 struct CTRBTreeNode * _deleteTwoChildrenNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
+void ctFreeNode(struct CTRBTreeNode *node);
 
 
 
@@ -47,6 +49,18 @@ void deleteCTRBTreeNode(uint64_t key, struct CTRBTreeRoot *root)
     struct CTRBTreeNode *nodeToDelete = findCTRBTreeNode(key, root);
     if (nodeToDelete == NULL) {
         return;
+    }
+
+    int numberOfChild = _numberOfChild(nodeToDelete);
+    struct CTRBTreeNode *newTopNode = NULL;
+    if (numberOfChild == 0) {
+        newTopNode = _deleteLeafNode(nodeToDelete, root);
+    }
+    if (numberOfChild == 1) {
+        newTopNode = _deleteOneChildNode(nodeToDelete, root);
+    }
+    if (numberOfChild == 2) {
+        newTopNode = _deleteTwoChildrenNode(nodeToDelete, root);
     }
 }
 
@@ -354,12 +368,64 @@ int _numberOfChild(struct CTRBTreeNode *node)
 
 struct CTRBTreeNode * _deleteLeafNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
 {
+    if (node->parent == NULL) {
+        root->rootNode = NULL;
+        ctFreeNode(node);
+        return NULL;
+    }
+
+    int nodeIndex = _nodeIndex(node);
+    node->parent->childNode[nodeIndex] = NULL;
+    if (nodeIndex == 1) {
+        node->parent->balance--;
+    }
+    if (nodeIndex == 0) {
+        node->parent->balance++;
+    }
+
+    ctFreeNode(node);
+    return node->parent;
 }
 
 struct CTRBTreeNode * _deleteOneChildNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
 {
+    struct CTRBTreeNode *child = node->childNode[0] ? node->childNode[0] : node->childNode[1];
+    struct CTRBTreeNode *parent = node->parent;
+    if (parent == NULL) {
+        root->rootNode = childNode;
+        childNode->parent = NULL;
+        ctFreeNode(node);
+        return childNode;
+    }
+
+    int nodeIndex = _nodeIndex(node);
+    child->parent = parent;
+    parent->childNode[nodeIndex] = child;
+
+    if (nodeIndex == 1) {
+        parent->balance--;
+    }
+    if (nodeIndex == 0) {
+        parent->balance++;
+    }
+
+    ctFreeNode(node);
+    return node->parent;
 }
 
 struct CTRBTreeNode * _deleteTwoChildrenNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
+{
+}
+
+int _nodeIndex(struct CTRBTreeNode *node)
+{
+    int index = 0;
+    if (node == node->parent->childNode[1]) {
+        index = 1;
+    }
+    return index;
+}
+
+void ctFreeNode(struct CTRBTreeNode *node)
 {
 }
