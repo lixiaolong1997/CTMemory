@@ -12,6 +12,13 @@ struct CTRBTreeNode * _rotateLR(struct CTRBTreeNode *node, struct CTRBTreeRoot *
 struct CTRBTreeNode * _rotateRL(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
 
 int _numberOfChild(struct CTRBTreeNode *node);
+struct CTRBTreeNode * _deleteLeafNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
+struct CTRBTreeNode * _deleteOneChildNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
+struct CTRBTreeNode * _deleteTwoChildrenNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
+
+
+
+
 
 struct CTRBTreeNode * findCTRBTreeNode(uint64_t key, struct CTRBTreeRoot *root)
 {
@@ -343,4 +350,16 @@ int _numberOfChild(struct CTRBTreeNode *node)
         }
     }
     return result;
+}
+
+struct CTRBTreeNode * _deleteLeafNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
+{
+}
+
+struct CTRBTreeNode * _deleteOneChildNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
+{
+}
+
+struct CTRBTreeNode * _deleteTwoChildrenNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
+{
 }
