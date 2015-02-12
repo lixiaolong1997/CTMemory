@@ -11,6 +11,8 @@ struct CTRBTreeNode * _rotateRR(struct CTRBTreeNode *node, struct CTRBTreeRoot *
 struct CTRBTreeNode * _rotateLR(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
 struct CTRBTreeNode * _rotateRL(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
 
+int _numberOfChild(struct CTRBTreeNode *node);
+
 struct CTRBTreeNode * findCTRBTreeNode(uint64_t key, struct CTRBTreeRoot *root)
 {
     struct CTRBTreeNode *foundedNode = root->rootNode;
@@ -329,4 +331,16 @@ struct CTRBTreeNode * _rotateRL(struct CTRBTreeNode *node, struct CTRBTreeRoot *
     bNode->balance--;
 
     return _rotateRR(node, root);
+}
+
+int _numberOfChild(struct CTRBTreeNode *node)
+{
+    int result = 0;
+    if (node->childNode[0] || node->childNode[1]) {
+        result++;
+        if (node->childNode[0] && node->childNode[1]) {
+            result++;
+        }
+    }
+    return result;
 }
