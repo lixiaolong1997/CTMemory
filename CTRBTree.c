@@ -17,6 +17,10 @@ int _numberOfChild(struct CTRBTreeNode *node);
 int _nodeIndex(struct CTRBTreeNode *node);
 struct CTRBTreeNode * _rightMinNode(struct CTRBTreeNode *node);
 
+struct CTRBTreeNode * _deleteLeafNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
+struct CTRBTreeNode * _deleteOneChildNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
+struct CTRBTreeNode * _deleteTwoChildrenNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
+
 void _ctNodeFree(struct CTRBTreeNode *node);
 
 
@@ -51,8 +55,22 @@ void deleteCTRBTreeNode(uint64_t key, struct CTRBTreeRoot *root)
         return;
     }
 
-    struct CTRBTreeNode *parentNode = nodeToDelete->parent;
-    struct CTRBTreeNode *right
+    int numberOfChild = _numberOfChild(nodeToDelete);
+    struct CTRBTreeNode *iterator = NULL;
+
+    if (numberOfChild == 0) {
+        iterator = _deleteLeafNode(nodeToDelete, root);
+    }
+
+    if (numberOfChild == 1) {
+        iterator = _deleteOneChildNode(nodeToDelete, root);
+    }
+
+    if (numberOfChild == 2) {
+        iterator = _deleteTwoChildrenNode(nodeToDelete, root);
+    }
+
+    _maintain(iterator, root);
 }
 
 void insertCTRBTreeNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
