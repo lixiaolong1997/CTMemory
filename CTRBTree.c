@@ -410,3 +410,80 @@ void _ctNodeFree(struct CTRBTreeNode *node)
 {
     _heightOfNode(node);
 }
+
+struct CTRBTreeNode * _deleteLeafNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
+{
+    struct CTRBTreeNode *parent = node->parent;
+
+    if (parent == NULL) {
+        root->rootNode = NULL;
+    } else {
+        int nodeIndex = _nodeIndex(node);
+        parent->childNode[nodeIndex] = NULL;
+    }
+
+    _ctNodeFree(node);
+    return parent;
+}
+
+struct CTRBTreeNode * _deleteOneChildNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
+{
+    struct CTRBTreeNode *parent = node->parent;
+
+    struct CTRBTreeNode *childNode = node->childNode[0];
+    if (childNode == NULL) {
+        childNode = node->childNode[1];
+    }
+
+    if (parent == NULL) {
+        root->rootNode = childNode;
+        childNode->parent = NULL;
+        _ctNodeFree(node);
+        return NULL;
+    }
+
+    int nodeIndex = _nodeIndex(node);
+    parent->childNode[nodeIndex] = childNode;
+    childNode->parent = parent;
+
+    _ctNodeFree(node);
+    return childNode;
+}
+
+struct CTRBTreeNode * _deleteTwoChildrenNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
+{
+    struct CTRBTreeNode *parent = node->parent;
+    struct CTRBTreeNode *leftNode = node->childNode[0];
+    struct CTRBTreeNode *rightNode = node->childNode[1];
+    struct CTRBTreeNode *rightMinNode = _rightMinNode(node);
+
+    struct CTRBTreeNode *iteratorNode = NULL;
+
+    int nodeIndex = _nodeIndex(node);
+
+    if (parent == NULL) {
+        root->rootNode = rightNode;
+    }
+
+    if (rightNode == rightMinNode) {
+        rightNode->childNode[0] = leftNode;
+        leftNode->parent = rightNode;
+        rightNode->parent = parent;
+        iteratorNode = rightNode;
+    } else {
+        iteratorNode = rightMinNode->parent;
+
+        rightMinNode->parent->childNode[_nodeIndex(rightMinNode)] = rightMinNode->childNode[1];
+
+        rightMinNode->childNode[0] = leftNode;
+        leftNode->parent = rightMinNode;
+
+        rightMinNode->childNode[1] = rightNode;
+        rightNode->parent = rightMinNode;
+
+        rightMinNode->parent = node->parent;
+    }
+
+    _ctNodeFree(node);
+    return iteratorNode;
+}

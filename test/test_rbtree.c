@@ -16,52 +16,6 @@ struct CTRBTreeNode * createNode(uint64_t key);
 
 SUITE(test_rbtree);
 
-TEST test_findRBTreeNode()
-{
-    /* struct CTRBTreeNode *node = NULL; */
-
-    /* struct CTRBTreeRoot *root = _sharedRBTreeRoot(); */
-    /* ASSERT(root != NULL); */
-
-    /* node = findCTRBTreeNode(2, root); */
-    /* ASSERT(node == NULL); */
-
-    /* node = (struct CTRBTreeNode *)malloc(sizeof(struct CTRBTreeNode)); */
-    /* node->key = 2; */
-    /* node->value = (void *)"test string"; */
-    /* insertCTRBTreeNode(node, root); */
-
-    /* struct CTRBTreeNode *foundNode = findCTRBTreeNode(2, root); */
-    /* ASSERT(foundNode != NULL); */
-    /* ASSERT(node == foundNode); */
-
-    PASS();
-}
-
-TEST test_deleteRBTreeNode()
-{
-    /* struct CTRBTreeRoot *root = _sharedRBTreeRoot(); */
-    /* ASSERT(root != NULL); */
-
-    /* deleteCTRBTreeNode(3, root); */
-
-    /* struct CTRBTreeNode *foundNode = NULL; */
-
-    /* struct CTRBTreeNode *node = (struct CTRBTreeNode *)malloc(sizeof(struct CTRBTreeNode)); */
-    /* node->key = 4; */
-    /* node->value = (void *)"test string"; */
-
-    /* insertCTRBTreeNode(node, root); */
-    /* foundNode = findCTRBTreeNode(4, root); */
-    /* ASSERT(foundNode != NULL); */
-
-    /* deleteCTRBTreeNode(4, root); */
-    /* foundNode = findCTRBTreeNode(4, root); */
-    /* ASSERT(foundNode == NULL); */
-
-    PASS();
-}
-
 TEST test_insertRBTreeNode()
 {
     struct CTRBTreeRoot *root = _sharedRBTreeRoot();
@@ -358,10 +312,90 @@ TEST test_insertRBTreeNode()
     PASS();
 }
 
+TEST test_deleteRBTreeNode()
+{
+    /*
+     *
+     * before:
+     *
+     *             9
+     *       /           \
+     *      4            70
+     *    /   \       /      \
+     *   2     6     50      90
+     *  / \   / \   /  \    /  \
+     * 1   3 5   7 10  60  78  100
+     *                    /  \
+     *                   75  80
+     *
+     *
+     *
+     * after:
+     *
+     *             9
+     *       /           \
+     *      4            70
+     *    /   \       /      \
+     *   2     6     50      78
+     *  / \   / \   /  \    /  \
+     * 1   3 5   7 10  60  75  90
+     *                         /
+     *                        80
+     * */
+
+    struct CTRBTreeRoot *root = _sharedRBTreeRoot();
+    deleteCTRBTreeNode(100, root);
+
+    nodeToTest = root->rootNode;
+    ASSERT(nodeToTest->key == 9);
+
+    nodeToTest = root->rootNode->childNode[0];
+    ASSERT(nodeToTest->key == 4);
+    nodeToTest = root->rootNode->childNode[1];
+    ASSERT(nodeToTest->key == 70);
+
+    nodeToTest = root->rootNode->childNode[0]->childNode[0];
+    ASSERT(nodeToTest->key == 2);
+    nodeToTest = root->rootNode->childNode[0]->childNode[1];
+    ASSERT(nodeToTest->key == 6);
+    nodeToTest = root->rootNode->childNode[1]->childNode[0];
+    ASSERT(nodeToTest->key == 50);
+    nodeToTest = root->rootNode->childNode[1]->childNode[1];
+    ASSERT(nodeToTest->key == 78);
+
+    nodeToTest = root->rootNode->childNode[0]->childNode[0]->childNode[0];
+    ASSERT(nodeToTest->key == 1);
+    nodeToTest = root->rootNode->childNode[0]->childNode[0]->childNode[1];
+    ASSERT(nodeToTest->key == 3);
+    nodeToTest = root->rootNode->childNode[0]->childNode[1]->childNode[0];
+    ASSERT(nodeToTest->key == 5);
+    nodeToTest = root->rootNode->childNode[0]->childNode[1]->childNode[1];
+    ASSERT(nodeToTest->key == 7);
+    nodeToTest = root->rootNode->childNode[1]->childNode[0]->childNode[0];
+    ASSERT(nodeToTest->key == 10);
+    nodeToTest = root->rootNode->childNode[1]->childNode[0]->childNode[1];
+    ASSERT(nodeToTest->key == 60);
+    nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[0];
+    ASSERT(nodeToTest->key == 75);
+    nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[1];
+    ASSERT(nodeToTest->key == 90);
+
+    nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[1]->childNode[0];
+    ASSERT(nodeToTest->key == 80);
+
+    PASS();
+}
+
+TEST test_findRBTreeNode()
+{
+    PASS();
+}
+
+
 SUITE(test_rbtree) {
-    RUN_TEST(test_findRBTreeNode);
-    RUN_TEST(test_deleteRBTreeNode);
     RUN_TEST(test_insertRBTreeNode);
+    RUN_TEST(test_deleteRBTreeNode);
+    RUN_TEST(test_findRBTreeNode);
 }
 
 /******************** private methods ********************/
