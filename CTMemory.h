@@ -5,9 +5,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include "CTAVLTree.h"
 
-void* ctAlloc(size_t size);
-void  ctRetain(void *memory);
-void  ctRelease(void *memory);
+void * ctAlloc(size_t size, void (* deallocMethod)(void *address));
+
+void ctRetain(void *memory);
+void ctRelease(void *memory);
 
 #endif

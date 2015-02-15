@@ -1,137 +1,109 @@
 #include "CTMemory.h"
 
-/*
- * node of for reference count
- * */
 struct CTMemoryRecord {
-    void * recordedMemoryPointer;
     int retainCount;
-
-    struct CTMemoryRecord *previous;
-    struct CTMemoryRecord *next;
-
-    pthread_mutex_t *memoryRecordListMutexRe;
+    void (* deallocMethod)(void *address);
+    pthread_mutex_t *memoryRecordMutex;
 };
 
-struct CTMemoryRecord * _findRecord(void *recordedMemoryPointer);
-struct CTMemoryRecordList * _sharedMemoryRecordList(void);
-void _initMemoryRecordList(void);
-struct CTMemoryRecord * _createCTMemoryRecord(void *recordedMemoryPointer);
-void _deleteRecord(struct CTMemoryRecord *record);
+void _createMemoryRecordTree(void);
+struct CTAVLTreeRoot *_sharedMemoryRecordTree(void);
 
-/*
- * link list for reference count
- * */
+void _createMemoryRecordTreeMutex(void);
+pthread_mutex_t *_sharedMemoryRecordTreeMutex(void);
 
-struct CTMemoryRecordList {
-    bool isEmpty;
-    struct CTMemoryRecord *record;
-};
+struct CTAVLTreeRoot *__memoryRecordTree = NULL;
+static pthread_mutex_t *__memoryRecordTreeMutex = NULL;
 
-static pthread_mutex_t memoryRecordListMutex = PTHREAD_MUTEX_INITIALIZER;
-
-/* never use it directly in your code, use `sharedMemoryRecordList()` to get the record list. */
-static struct CTMemoryRecordList *__sharedMemoryRecordList = NULL;
-
-void* ctAlloc(size_t size)
+void * ctAlloc(size_t size, void (* deallocMethod)(void *address))
 {
-    pthread_mutex_lock(&memoryRecordListMutex);
+    void * allocedMemeory = malloc(size + sizeof(struct CTMemoryRecord) + sizeof(struct CTAVLTreeNode) + sizeof(pthread_mutex_t));
 
-    void *allocedMemory = malloc(size);
-    struct CTMemoryRecord *record = _createCTMemoryRecord(allocedMemory);
-    struct CTMemoryRecordList *sharedList = _sharedMemoryRecordList();
-
-    if (sharedList->isEmpty) {
-        sharedList->record = record;
-        sharedList->isEmpty = false;
-    } else {
-        struct CTMemoryRecord *currentRecord = sharedList->record;
-        struct CTMemoryRecord *nextRecord = sharedList->record->next;
-
-        record->previous = currentRecord;
-        record->next = nextRecord;
-
-        currentRecord->next = record;
-        nextRecord->previous = record;
+    if (allocedMemeory == NULL) {
+        return NULL;
     }
 
-    pthread_mutex_unlock(&memoryRecordListMutex);
-
-    return allocedMemory;
-}
-
-void  ctRetain(void *memory)
-{
-    pthread_mutex_lock(&memoryRecordListMutex);
-    struct CTMemoryRecord *record = _findRecord(memory);
-    if (record) {
-        record->retainCount++;
+    struct CTMemoryRecord *memoryRecord = (struct CTMemoryRecord *)(((uint64_t)allocedMemeory) + size);
+    memoryRecord->retainCount = 1;
+    memoryRecord->deallocMethod = deallocMethod;
+    memoryRecord->memoryRecordMutex = (pthread_mutex_t *)((uint64_t)memoryRecord + sizeof(struct CTMemoryRecord));
+    if (pthread_mutex_init(memoryRecord->memoryRecordMutex, NULL)) {
+        free(allocedMemeory);
+        return NULL;
     }
-    pthread_mutex_unlock(&memoryRecordListMutex);
+
+    struct CTAVLTreeNode *recordNode = (struct CTAVLTreeNode *)((uint64_t)memoryRecord + sizeof(struct CTMemoryRecord) + sizeof(pthread_mutex_t));
+    recordNode->key = allocedMemeory;
+    recordNode->value = (void *)memoryRecord;
+
+    struct CTAVLTreeRoot *root = _sharedMemoryRecordTree();
+
+    pthread_mutex_lock(_sharedMemoryRecordTreeMutex());
+    insertCTAVLTreeNode(recordNode, root);
+    pthread_mutex_unlock(_sharedMemoryRecordTreeMutex());
+
+    return allocedMemeory;
 }
 
-void  ctRelease(void *memory)
+void ctRetain(void *memory)
 {
-    pthread_mutex_lock(&memoryRecordListMutex);
-    struct CTMemoryRecord *record = _findRecord(memory);
-    if (record) {
-        record->retainCount--;
-        if (record->retainCount == 0) {
-            _deleteRecord(record);
+    struct CTAVLTreeNode *node = findCTAVLTreeNode(memory, _sharedMemoryRecordTree());
+    struct CTMemoryRecord *memoryRecord = (struct CTMemoryRecord *)node->value;
+    pthread_mutex_lock(memoryRecord->memoryRecordMutex);
+    memoryRecord->retainCount++;
+    pthread_mutex_unlock(memoryRecord->memoryRecordMutex);
+}
+
+void ctRelease(void *memory)
+{
+    struct CTAVLTreeNode *node = findCTAVLTreeNode(memory, _sharedMemoryRecordTree());
+    struct CTMemoryRecord *memoryRecord = (struct CTMemoryRecord *)node->value;
+
+    pthread_mutex_lock(memoryRecord->memoryRecordMutex);
+    memoryRecord->retainCount--;
+    pthread_mutex_unlock(memoryRecord->memoryRecordMutex);
+
+    if (memoryRecord->retainCount == 0) {
+        if (memoryRecord->deallocMethod != NULL) {
+            memoryRecord->deallocMethod(memory);
         }
+        deleteCTAVLTreeNode(memory, _sharedMemoryRecordTree());
+        free(memory);
     }
-    pthread_mutex_unlock(&memoryRecordListMutex);
 }
 
-/****************** Private Methods ******************/
-struct CTMemoryRecord * _findRecord(void *recordedMemoryPointer)
+/************ Private Methods **************/
+void _createMemoryRecordTree()
 {
-    struct CTMemoryRecord *startRecord = (_sharedMemoryRecordList())->record;
-    if (startRecord->recordedMemoryPointer == recordedMemoryPointer) {
-        return startRecord;
-    }
-
-    struct CTMemoryRecord *resultRecord = NULL;
-    while (startRecord->next != startRecord) {
-        startRecord = startRecord->next;
-        if (startRecord->recordedMemoryPointer == recordedMemoryPointer) {
-            resultRecord = startRecord;
-            break;
-        }
-    }
-    return resultRecord;
+    __memoryRecordTree = (struct CTAVLTreeRoot *)malloc(sizeof(struct CTAVLTreeRoot));
+    __memoryRecordTree->rootNode = NULL;
+    __memoryRecordTree->compare = NULL;
 }
 
-void _deleteRecord(struct CTMemoryRecord *record)
+struct CTAVLTreeRoot *_sharedMemoryRecordTree()
 {
-    record->previous->next = record->next;
-    record->next->previous = record->previous;
-    free(record->recordedMemoryPointer);
-    free(record);
-}
-
-struct CTMemoryRecord * _createCTMemoryRecord(void *recordedMemoryPointer)
-{
-    struct CTMemoryRecord *record = (struct CTMemoryRecord *)malloc(sizeof(struct CTMemoryRecord));
-    record->recordedMemoryPointer = recordedMemoryPointer;
-    record->retainCount = 1;
-    record->previous = record;
-    record->next = record;
-    return record;
-}
-
-void _initMemoryRecordList()
-{
-    __sharedMemoryRecordList = (struct CTMemoryRecordList *)malloc(sizeof(struct CTMemoryRecordList));
-    __sharedMemoryRecordList->isEmpty = true;
-    __sharedMemoryRecordList->record = NULL;
-}
-
-struct CTMemoryRecordList * _sharedMemoryRecordList()
-{
-    if (__sharedMemoryRecordList == NULL) {
+    if (__memoryRecordTree == NULL) {
         static pthread_once_t onceToken = PTHREAD_ONCE_INIT;
-        pthread_once(&onceToken, _initMemoryRecordList);
+        pthread_once(&onceToken, _createMemoryRecordTree);
     }
-    return __sharedMemoryRecordList;
+    return __memoryRecordTree;
+}
+
+void _createMemoryRecordTreeMutex()
+{
+    pthread_mutexattr_t mutexAttr;
+    pthread_mutexattr_init(&mutexAttr);
+    pthread_mutexattr_settype(&mutexAttr, PTHREAD_MUTEX_RECURSIVE);
+    __memoryRecordTreeMutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+    pthread_mutex_init(__memoryRecordTreeMutex, &mutexAttr);
+    pthread_mutexattr_destroy(&mutexAttr);
+}
+
+pthread_mutex_t *_sharedMemoryRecordTreeMutex()
+{
+    if (__memoryRecordTreeMutex == NULL) {
+        static pthread_once_t onceToken = PTHREAD_ONCE_INIT;
+        pthread_once(&onceToken, _createMemoryRecordTreeMutex);
+    }
+    return __memoryRecordTreeMutex;
 }

@@ -18,19 +18,19 @@ struct test_CTDerivedStruct
     int *pointer;
 };
 
-void releaseCTDerivedStruct(struct test_CTDerivedStruct *item);
-void releaseCTDerivedStruct(struct test_CTDerivedStruct *item){
+static void releaseCTDerivedStruct(void *object);
+void releaseCTDerivedStruct(void *object){
+    struct test_CTDerivedStruct *item = (struct test_CTDerivedStruct *)object;
     ctRelease(item->pointer);
-    ctRelease(item);
 }
 
 TEST test_ctRetain_ctAlloc_ctRelease(void)
 {
-    struct test_CTDerivedStruct *item = (struct test_CTDerivedStruct *)ctAlloc(sizeof(struct test_CTDerivedStruct));
+    struct test_CTDerivedStruct *item = (struct test_CTDerivedStruct *)ctAlloc(sizeof(struct test_CTDerivedStruct), releaseCTDerivedStruct);
     item->data = 10;
-    item->pointer = (int *)ctAlloc(1);
+    item->pointer = (int *)ctAlloc(1, NULL);
     *(item->pointer) = 1;
-    releaseCTDerivedStruct(item);
+    ctRelease(item);
 
     PASS();
 }

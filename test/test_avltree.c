@@ -13,6 +13,7 @@ static struct CTAVLTreeRoot *__sharedRoot;
 void _createCTAVLTreeRoot(void);
 struct CTAVLTreeRoot *_sharedAVLTreeRoot(void);
 struct CTAVLTreeNode * createNode(uint64_t key);
+static int compare(void *value1, void *value2);
 
 SUITE(test_avltree);
 
@@ -40,9 +41,9 @@ TEST test_insertAVLTreeNode()
     /* testNode = createNode(9); */
     /* insertCTAVLTreeNode(testNode, root); */
 
-    /* ASSERT(root->rootNode->key == 9); */
-    /* ASSERT(root->rootNode->childNode[0]->key == 7); */
-    /* ASSERT(root->rootNode->childNode[1]->key == 10); */
+    /* ASSERT((uint64_t)root->rootNode->key == 9); */
+    /* ASSERT((uint64_t)root->rootNode->childNode[0]->key == 7); */
+    /* ASSERT((uint64_t)root->rootNode->childNode[1]->key == 10); */
 
     /* PASS(); */
 
@@ -66,7 +67,7 @@ TEST test_insertAVLTreeNode()
      * */
     struct CTAVLTreeNode *node = createNode(4);
     insertCTAVLTreeNode(node, root);
-    ASSERT(root->rootNode->key == 4);
+    ASSERT((uint64_t)root->rootNode->key == 4);
 
     /* 
      *   4
@@ -77,8 +78,8 @@ TEST test_insertAVLTreeNode()
     node = createNode(2);
     insertCTAVLTreeNode(node, root);
     nodeToTest = root->rootNode->childNode[0];
-    ASSERT(nodeToTest->key == 2);
-    ASSERT(root->rootNode->key == 4);
+    ASSERT((uint64_t)nodeToTest->key == 2);
+    ASSERT((uint64_t)root->rootNode->key == 4);
 
     /*
      *
@@ -89,11 +90,11 @@ TEST test_insertAVLTreeNode()
      * */
     node = createNode(1);
     insertCTAVLTreeNode(node, root);
-    ASSERT(root->rootNode->key == 2);
+    ASSERT((uint64_t)root->rootNode->key == 2);
     nodeToTest = root->rootNode->childNode[0];
-    ASSERT(nodeToTest->key == 1);
+    ASSERT((uint64_t)nodeToTest->key == 1);
     nodeToTest = root->rootNode->childNode[1];
-    ASSERT(nodeToTest->key == 4);
+    ASSERT((uint64_t)nodeToTest->key == 4);
 
     /*
      *
@@ -106,13 +107,13 @@ TEST test_insertAVLTreeNode()
      * */
     node = createNode(3);
     insertCTAVLTreeNode(node, root);
-    ASSERT(root->rootNode->key == 2);
+    ASSERT((uint64_t)root->rootNode->key == 2);
     nodeToTest = root->rootNode->childNode[0];
-    ASSERT(nodeToTest->key == 1);
+    ASSERT((uint64_t)nodeToTest->key == 1);
     nodeToTest = root->rootNode->childNode[1];
-    ASSERT(nodeToTest->key == 4);
+    ASSERT((uint64_t)nodeToTest->key == 4);
     nodeToTest = root->rootNode->childNode[1]->childNode[0];
-    ASSERT(nodeToTest->key == 3);
+    ASSERT((uint64_t)nodeToTest->key == 3);
 
     /*
      *
@@ -125,15 +126,15 @@ TEST test_insertAVLTreeNode()
      * */
     node = createNode(6);
     insertCTAVLTreeNode(node, root);
-    ASSERT(root->rootNode->key == 2);
+    ASSERT((uint64_t)root->rootNode->key == 2);
     nodeToTest = root->rootNode->childNode[0];
-    ASSERT(nodeToTest->key == 1);
+    ASSERT((uint64_t)nodeToTest->key == 1);
     nodeToTest = root->rootNode->childNode[1];
-    ASSERT(nodeToTest->key == 4);
+    ASSERT((uint64_t)nodeToTest->key == 4);
     nodeToTest = root->rootNode->childNode[1]->childNode[0];
-    ASSERT(nodeToTest->key == 3);
+    ASSERT((uint64_t)nodeToTest->key == 3);
     nodeToTest = root->rootNode->childNode[1]->childNode[1];
-    ASSERT(nodeToTest->key == 6);
+    ASSERT((uint64_t)nodeToTest->key == 6);
 
     /*
      *
@@ -146,18 +147,18 @@ TEST test_insertAVLTreeNode()
      * */
     node = createNode(5);
     insertCTAVLTreeNode(node, root);
-    ASSERT(root->rootNode->key == 4);
+    ASSERT((uint64_t)root->rootNode->key == 4);
     nodeToTest = root->rootNode->childNode[0];
-    ASSERT(nodeToTest->key == 2);
+    ASSERT((uint64_t)nodeToTest->key == 2);
     nodeToTest = root->rootNode->childNode[0]->childNode[0];
-    ASSERT(nodeToTest->key == 1);
+    ASSERT((uint64_t)nodeToTest->key == 1);
     nodeToTest = root->rootNode->childNode[0]->childNode[1];
-    ASSERT(nodeToTest->key == 3);
+    ASSERT((uint64_t)nodeToTest->key == 3);
 
     nodeToTest = root->rootNode->childNode[1];
-    ASSERT(nodeToTest->key == 6);
+    ASSERT((uint64_t)nodeToTest->key == 6);
     nodeToTest = root->rootNode->childNode[1]->childNode[0];
-    ASSERT(nodeToTest->key == 5);
+    ASSERT((uint64_t)nodeToTest->key == 5);
 
 
     /*
@@ -171,20 +172,20 @@ TEST test_insertAVLTreeNode()
      * */
     node = createNode(7);
     insertCTAVLTreeNode(node, root);
-    ASSERT(root->rootNode->key == 4);
+    ASSERT((uint64_t)root->rootNode->key == 4);
     nodeToTest = root->rootNode->childNode[0];
-    ASSERT(nodeToTest->key == 2);
+    ASSERT((uint64_t)nodeToTest->key == 2);
     nodeToTest = root->rootNode->childNode[0]->childNode[0];
-    ASSERT(nodeToTest->key == 1);
+    ASSERT((uint64_t)nodeToTest->key == 1);
     nodeToTest = root->rootNode->childNode[0]->childNode[1];
-    ASSERT(nodeToTest->key == 3);
+    ASSERT((uint64_t)nodeToTest->key == 3);
 
     nodeToTest = root->rootNode->childNode[1];
-    ASSERT(nodeToTest->key == 6);
+    ASSERT((uint64_t)nodeToTest->key == 6);
     nodeToTest = root->rootNode->childNode[1]->childNode[0];
-    ASSERT(nodeToTest->key == 5);
+    ASSERT((uint64_t)nodeToTest->key == 5);
     nodeToTest = root->rootNode->childNode[1]->childNode[1];
-    ASSERT(nodeToTest->key == 7);
+    ASSERT((uint64_t)nodeToTest->key == 7);
 
 
 
@@ -205,24 +206,24 @@ TEST test_insertAVLTreeNode()
     node = createNode(9);
     insertCTAVLTreeNode(node, root);
 
-    ASSERT(root->rootNode->key == 4);
+    ASSERT((uint64_t)root->rootNode->key == 4);
     nodeToTest = root->rootNode->childNode[0];
-    ASSERT(nodeToTest->key == 2);
+    ASSERT((uint64_t)nodeToTest->key == 2);
     nodeToTest = root->rootNode->childNode[0]->childNode[0];
-    ASSERT(nodeToTest->key == 1);
+    ASSERT((uint64_t)nodeToTest->key == 1);
     nodeToTest = root->rootNode->childNode[0]->childNode[1];
-    ASSERT(nodeToTest->key == 3);
+    ASSERT((uint64_t)nodeToTest->key == 3);
 
     nodeToTest = root->rootNode->childNode[1];
-    ASSERT(nodeToTest->key == 6);
+    ASSERT((uint64_t)nodeToTest->key == 6);
     nodeToTest = root->rootNode->childNode[1]->childNode[0];
-    ASSERT(nodeToTest->key == 5);
+    ASSERT((uint64_t)nodeToTest->key == 5);
     nodeToTest = root->rootNode->childNode[1]->childNode[1];
-    ASSERT(nodeToTest->key == 9);
+    ASSERT((uint64_t)nodeToTest->key == 9);
     nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[0];
-    ASSERT(nodeToTest->key == 7);
+    ASSERT((uint64_t)nodeToTest->key == 7);
     nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[1];
-    ASSERT(nodeToTest->key == 10);
+    ASSERT((uint64_t)nodeToTest->key == 10);
 
 
     /*
@@ -243,17 +244,17 @@ TEST test_insertAVLTreeNode()
     insertCTAVLTreeNode(node, root);
 
     nodeToTest = root->rootNode->childNode[1];
-    ASSERT(nodeToTest->key == 9);
+    ASSERT((uint64_t)nodeToTest->key == 9);
     nodeToTest = root->rootNode->childNode[1]->childNode[0];
-    ASSERT(nodeToTest->key == 6);
+    ASSERT((uint64_t)nodeToTest->key == 6);
     nodeToTest = root->rootNode->childNode[1]->childNode[1];
-    ASSERT(nodeToTest->key == 10);
+    ASSERT((uint64_t)nodeToTest->key == 10);
     nodeToTest = root->rootNode->childNode[1]->childNode[0]->childNode[0];
-    ASSERT(nodeToTest->key == 5);
+    ASSERT((uint64_t)nodeToTest->key == 5);
     nodeToTest = root->rootNode->childNode[1]->childNode[0]->childNode[1];
-    ASSERT(nodeToTest->key == 7);
+    ASSERT((uint64_t)nodeToTest->key == 7);
     nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[1];
-    ASSERT(nodeToTest->key == 50);
+    ASSERT((uint64_t)nodeToTest->key == 50);
 
     node = createNode(60);
     insertCTAVLTreeNode(node, root);
@@ -271,43 +272,43 @@ TEST test_insertAVLTreeNode()
     insertCTAVLTreeNode(node, root);
 
     nodeToTest = root->rootNode;
-    ASSERT(nodeToTest->key == 9);
+    ASSERT((uint64_t)nodeToTest->key == 9);
 
     nodeToTest = root->rootNode->childNode[0];
-    ASSERT(nodeToTest->key == 4);
+    ASSERT((uint64_t)nodeToTest->key == 4);
     nodeToTest = root->rootNode->childNode[1];
-    ASSERT(nodeToTest->key == 70);
+    ASSERT((uint64_t)nodeToTest->key == 70);
 
     nodeToTest = root->rootNode->childNode[0]->childNode[0];
-    ASSERT(nodeToTest->key == 2);
+    ASSERT((uint64_t)nodeToTest->key == 2);
     nodeToTest = root->rootNode->childNode[0]->childNode[1];
-    ASSERT(nodeToTest->key == 6);
+    ASSERT((uint64_t)nodeToTest->key == 6);
     nodeToTest = root->rootNode->childNode[1]->childNode[0];
-    ASSERT(nodeToTest->key == 50);
+    ASSERT((uint64_t)nodeToTest->key == 50);
     nodeToTest = root->rootNode->childNode[1]->childNode[1];
-    ASSERT(nodeToTest->key == 90);
+    ASSERT((uint64_t)nodeToTest->key == 90);
 
     nodeToTest = root->rootNode->childNode[0]->childNode[0]->childNode[0];
-    ASSERT(nodeToTest->key == 1);
+    ASSERT((uint64_t)nodeToTest->key == 1);
     nodeToTest = root->rootNode->childNode[0]->childNode[0]->childNode[1];
-    ASSERT(nodeToTest->key == 3);
+    ASSERT((uint64_t)nodeToTest->key == 3);
     nodeToTest = root->rootNode->childNode[0]->childNode[1]->childNode[0];
-    ASSERT(nodeToTest->key == 5);
+    ASSERT((uint64_t)nodeToTest->key == 5);
     nodeToTest = root->rootNode->childNode[0]->childNode[1]->childNode[1];
-    ASSERT(nodeToTest->key == 7);
+    ASSERT((uint64_t)nodeToTest->key == 7);
     nodeToTest = root->rootNode->childNode[1]->childNode[0]->childNode[0];
-    ASSERT(nodeToTest->key == 10);
+    ASSERT((uint64_t)nodeToTest->key == 10);
     nodeToTest = root->rootNode->childNode[1]->childNode[0]->childNode[1];
-    ASSERT(nodeToTest->key == 60);
+    ASSERT((uint64_t)nodeToTest->key == 60);
     nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[0];
-    ASSERT(nodeToTest->key == 78);
+    ASSERT((uint64_t)nodeToTest->key == 78);
     nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[1];
-    ASSERT(nodeToTest->key == 100);
+    ASSERT((uint64_t)nodeToTest->key == 100);
 
     nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[0]->childNode[0];
-    ASSERT(nodeToTest->key == 75);
+    ASSERT((uint64_t)nodeToTest->key == 75);
     nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[0]->childNode[1];
-    ASSERT(nodeToTest->key == 80);
+    ASSERT((uint64_t)nodeToTest->key == 80);
 
     PASS();
 }
@@ -345,44 +346,44 @@ TEST test_deleteAVLTreeNode()
      *                        80
      * */
 
-    deleteCTAVLTreeNode(100, root);
+    deleteCTAVLTreeNode((void *)100, root);
 
     nodeToTest = root->rootNode;
-    ASSERT(nodeToTest->key == 9);
+    ASSERT((uint64_t)nodeToTest->key == 9);
 
     nodeToTest = root->rootNode->childNode[0];
-    ASSERT(nodeToTest->key == 4);
+    ASSERT((uint64_t)nodeToTest->key == 4);
     nodeToTest = root->rootNode->childNode[1];
-    ASSERT(nodeToTest->key == 70);
+    ASSERT((uint64_t)nodeToTest->key == 70);
 
     nodeToTest = root->rootNode->childNode[0]->childNode[0];
-    ASSERT(nodeToTest->key == 2);
+    ASSERT((uint64_t)nodeToTest->key == 2);
     nodeToTest = root->rootNode->childNode[0]->childNode[1];
-    ASSERT(nodeToTest->key == 6);
+    ASSERT((uint64_t)nodeToTest->key == 6);
     nodeToTest = root->rootNode->childNode[1]->childNode[0];
-    ASSERT(nodeToTest->key == 50);
+    ASSERT((uint64_t)nodeToTest->key == 50);
     nodeToTest = root->rootNode->childNode[1]->childNode[1];
-    ASSERT(nodeToTest->key == 78);
+    ASSERT((uint64_t)nodeToTest->key == 78);
 
     nodeToTest = root->rootNode->childNode[0]->childNode[0]->childNode[0];
-    ASSERT(nodeToTest->key == 1);
+    ASSERT((uint64_t)nodeToTest->key == 1);
     nodeToTest = root->rootNode->childNode[0]->childNode[0]->childNode[1];
-    ASSERT(nodeToTest->key == 3);
+    ASSERT((uint64_t)nodeToTest->key == 3);
     nodeToTest = root->rootNode->childNode[0]->childNode[1]->childNode[0];
-    ASSERT(nodeToTest->key == 5);
+    ASSERT((uint64_t)nodeToTest->key == 5);
     nodeToTest = root->rootNode->childNode[0]->childNode[1]->childNode[1];
-    ASSERT(nodeToTest->key == 7);
+    ASSERT((uint64_t)nodeToTest->key == 7);
     nodeToTest = root->rootNode->childNode[1]->childNode[0]->childNode[0];
-    ASSERT(nodeToTest->key == 10);
+    ASSERT((uint64_t)nodeToTest->key == 10);
     nodeToTest = root->rootNode->childNode[1]->childNode[0]->childNode[1];
-    ASSERT(nodeToTest->key == 60);
+    ASSERT((uint64_t)nodeToTest->key == 60);
     nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[0];
-    ASSERT(nodeToTest->key == 75);
+    ASSERT((uint64_t)nodeToTest->key == 75);
     nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[1];
-    ASSERT(nodeToTest->key == 90);
+    ASSERT((uint64_t)nodeToTest->key == 90);
 
     nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[1]->childNode[0];
-    ASSERT(nodeToTest->key == 80);
+    ASSERT((uint64_t)nodeToTest->key == 80);
 
     cleanTree(root, true);
 
@@ -402,11 +403,30 @@ SUITE(test_avltree) {
 }
 
 /******************** private methods ********************/
+static int compare(void *value1, void *value2)
+{
+    uint64_t v1 = (uint64_t)value1;
+    uint64_t v2 = (uint64_t)value2;
+
+    int result = v1 - v2;
+
+    if (result > 0) {
+        return CTAVLCMPRESULT_ASC;
+    }
+    if (result < 0) {
+        return CTAVLCMPRESULT_DEC;
+    }
+    if (result == 0) {
+        return CTAVLCMPRESULT_EQL;
+    }
+
+    return 0;
+}
 
 struct CTAVLTreeNode * createNode(uint64_t key)
 {
     struct CTAVLTreeNode *node = (struct CTAVLTreeNode *)malloc(sizeof(struct CTAVLTreeNode));
-    node->key = key;
+    node->key = (void *)key;
     node->parent = NULL;
     node->childNode[0] = NULL;
     node->childNode[1] = NULL;
@@ -418,6 +438,7 @@ void _createCTAVLTreeRoot()
 {
     __sharedRoot = (struct CTAVLTreeRoot *)malloc(sizeof(struct CTAVLTreeRoot));
     __sharedRoot->rootNode = NULL;
+    __sharedRoot->compare = compare;
 }
 
 struct CTAVLTreeRoot *_sharedAVLTreeRoot()

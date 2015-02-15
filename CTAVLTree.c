@@ -26,7 +26,7 @@ void _printNode(struct CTAVLTreeNode *node);
 
 
 
-struct CTAVLTreeNode * findCTAVLTreeNode(uint64_t key, struct CTAVLTreeRoot *root)
+struct CTAVLTreeNode * findCTAVLTreeNode(void * key, struct CTAVLTreeRoot *root)
 {
     struct CTAVLTreeNode *foundedNode = root->rootNode;
     bool founded = false;
@@ -34,11 +34,28 @@ struct CTAVLTreeNode * findCTAVLTreeNode(uint64_t key, struct CTAVLTreeRoot *roo
         if (foundedNode == NULL) {
             break;
         }
-        if (foundedNode->key == key) {
+
+        int result;
+        if (root->compare == NULL) {
+            int r = (uint64_t)key - (uint64_t)foundedNode->key;
+            if (r > 0) {
+                result = CTAVLCMPRESULT_ASC;
+            }
+            if (r < 0) {
+                result = CTAVLCMPRESULT_DEC;
+            }
+            if (r == 0) {
+                result = CTAVLCMPRESULT_EQL;
+            }
+        } else {
+            result = (* root->compare)(key, foundedNode->key);
+        }
+
+        if (result == CTAVLCMPRESULT_EQL) {
             founded = true;
             break;
         }
-        foundedNode = foundedNode->childNode[(key > foundedNode->key)?1:0];
+        foundedNode = foundedNode->childNode[result];
     }
 
     if (!founded) {
@@ -48,7 +65,7 @@ struct CTAVLTreeNode * findCTAVLTreeNode(uint64_t key, struct CTAVLTreeRoot *roo
     return foundedNode;
 }
 
-void deleteCTAVLTreeNode(uint64_t key, struct CTAVLTreeRoot *root)
+void deleteCTAVLTreeNode(void * key, struct CTAVLTreeRoot *root)
 {
     struct CTAVLTreeNode *nodeToDelete = findCTAVLTreeNode(key, root);
     if (nodeToDelete == NULL) {
@@ -467,6 +484,6 @@ struct CTAVLTreeNode * _deleteTwoChildrenNode(struct CTAVLTreeNode *node, struct
 void _printNode(struct CTAVLTreeNode *node)
 {
     printf("\n=============\n");
-    printf("key is %llu", node->key);
+    printf("key is %llu", (uint64_t)node->key);
     printf("\n=============\n");
 }
