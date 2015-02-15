@@ -1,6 +1,5 @@
 #include "CTRBTree.h"
 
-void _printNode(struct CTRBTreeNode *node);
 struct CTRBTreeNode * _maxNode(struct CTRBTreeNode *rootNode);
 
 struct CTRBTreeNode * _rotate(struct CTRBTreeNode *node, struct CTRBTreeRoot *root, bool *isRotated);
@@ -22,6 +21,7 @@ struct CTRBTreeNode * _deleteOneChildNode(struct CTRBTreeNode *node, struct CTRB
 struct CTRBTreeNode * _deleteTwoChildrenNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root);
 
 void _ctNodeFree(struct CTRBTreeNode *node);
+void _printNode(struct CTRBTreeNode *node);
 
 
 
@@ -104,40 +104,13 @@ void insertCTRBTreeNode(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
     }
 }
 
-void _printNode(struct CTRBTreeNode *node)
-{
-    printf("\n===========================\n");
-    printf("node->key = %llu", node->key);
-    printf("\n===========================\n");
-}
-
 void cleanTree(struct CTRBTreeRoot *root, bool shouldPrint)
 {
-    struct CTRBTreeNode * nodeStack[50];
-    int stackIndex = 0;
-    struct CTRBTreeNode *node = root->rootNode;
-    struct CTRBTreeNode *childNode = NULL;
-    while (true) {
-        if (node == NULL) {
-            if (stackIndex == 0) {
-                break;
-            }
-            stackIndex--;
-            node = nodeStack[stackIndex];
-        }
-
+    while (root->rootNode) {
         if (shouldPrint) {
-            _printNode(node);
+            _printNode(root->rootNode);
         }
-
-        if (node->childNode[1] != NULL) {
-            nodeStack[stackIndex] = node->childNode[1];
-            stackIndex++;
-        }
-
-        childNode = node->childNode[0];
-        free(node);
-        node = childNode;
+        deleteCTRBTreeNode(root->rootNode->key, root);
     }
 }
 
@@ -148,7 +121,6 @@ void _maintain(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
     struct CTRBTreeNode *iterator = node;
 
     while (iterator) {
-        iterator->height = _heightOfNode(iterator);
         bool isRotated;
         iterator = _rotate(iterator, root, &isRotated);
         if (isRotated == false) {
@@ -160,16 +132,16 @@ void _maintain(struct CTRBTreeNode *node, struct CTRBTreeRoot *root)
 struct CTRBTreeNode * _rotate(struct CTRBTreeNode *node, struct CTRBTreeRoot *root, bool *isRotated)
 {
     *isRotated = false;
+    node->height = _heightOfNode(node);
+
     struct CTRBTreeNode *newTopNode = node;
-
     int balance = _balanceOfNode(node);
-
 
     if (balance == 2) {
 
         balance = _balanceOfNode(node->childNode[1]);
 
-        if (balance == 1) {
+        if (balance >= 0) {
             newTopNode = _rotateLL(node, root);
             *isRotated = true;
             return newTopNode;
@@ -192,7 +164,7 @@ struct CTRBTreeNode * _rotate(struct CTRBTreeNode *node, struct CTRBTreeRoot *ro
             *isRotated = true;
             return newTopNode;
         }
-        if (balance == -1) {
+        if (balance <= 0) {
             newTopNode = _rotateRR(node, root);
             *isRotated = true;
             return newTopNode;
@@ -247,7 +219,8 @@ struct CTRBTreeNode * _rotateLL(struct CTRBTreeNode *node, struct CTRBTreeRoot *
     bNode->childNode[0] = aNode;
     aNode->parent = bNode;
 
-    aNode->height-=2;
+    aNode->height = _heightOfNode(aNode);
+    bNode->height = _heightOfNode(bNode);
 
     return bNode;
 }
@@ -286,7 +259,8 @@ struct CTRBTreeNode * _rotateRR(struct CTRBTreeNode *node, struct CTRBTreeRoot *
     bNode->childNode[1] = aNode;
     aNode->parent = bNode;
 
-    aNode->height -= 2;
+    aNode->height = _heightOfNode(aNode);
+    bNode->height = _heightOfNode(bNode);
 
     return bNode;
 }
@@ -319,8 +293,8 @@ struct CTRBTreeNode * _rotateLR(struct CTRBTreeNode *node, struct CTRBTreeRoot *
     cNode->childNode[1] = bNode;
     bNode->parent = cNode;
 
-    bNode->height -= 1;
-    cNode->height += 1;
+    bNode->height = _heightOfNode(bNode);
+    cNode->height = _heightOfNode(cNode);
 
     return _rotateLL(node, root);
 }
@@ -353,8 +327,8 @@ struct CTRBTreeNode * _rotateRL(struct CTRBTreeNode *node, struct CTRBTreeRoot *
     cNode->childNode[0] = bNode;
     bNode->parent = cNode;
 
-    cNode->height += 1;
-    bNode->height -= 1;
+    bNode->height = _heightOfNode(bNode);
+    cNode->height = _heightOfNode(cNode);
 
     return _rotateRR(node, root);
 }
@@ -455,14 +429,12 @@ struct CTRBTreeNode * _deleteTwoChildrenNode(struct CTRBTreeNode *node, struct C
     struct CTRBTreeNode *parent = node->parent;
     struct CTRBTreeNode *leftNode = node->childNode[0];
     struct CTRBTreeNode *rightNode = node->childNode[1];
-    struct CTRBTreeNode *rightMinNode = _rightMinNode(node);
+    struct CTRBTreeNode *rightMinNode = _rightMinNode(rightNode);
 
     struct CTRBTreeNode *iteratorNode = NULL;
 
-    int nodeIndex = _nodeIndex(node);
-
     if (parent == NULL) {
-        root->rootNode = rightNode;
+        root->rootNode = rightMinNode;
     }
 
     if (rightNode == rightMinNode) {
@@ -473,7 +445,11 @@ struct CTRBTreeNode * _deleteTwoChildrenNode(struct CTRBTreeNode *node, struct C
     } else {
         iteratorNode = rightMinNode->parent;
 
+
         rightMinNode->parent->childNode[_nodeIndex(rightMinNode)] = rightMinNode->childNode[1];
+        if (rightMinNode->childNode[1]) {
+            rightMinNode->childNode[1]->parent = rightMinNode->parent;
+        }
 
         rightMinNode->childNode[0] = leftNode;
         leftNode->parent = rightMinNode;
@@ -486,4 +462,11 @@ struct CTRBTreeNode * _deleteTwoChildrenNode(struct CTRBTreeNode *node, struct C
 
     _ctNodeFree(node);
     return iteratorNode;
+}
+
+void _printNode(struct CTRBTreeNode *node)
+{
+    printf("\n=============\n");
+    printf("key is %llu", node->key);
+    printf("\n=============\n");
 }

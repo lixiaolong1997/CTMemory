@@ -314,6 +314,8 @@ TEST test_insertRBTreeNode()
 
 TEST test_deleteRBTreeNode()
 {
+    struct CTRBTreeRoot *root = _sharedRBTreeRoot();
+    struct CTRBTreeNode *nodeToTest = NULL;
     /*
      *
      * before:
@@ -343,7 +345,6 @@ TEST test_deleteRBTreeNode()
      *                        80
      * */
 
-    struct CTRBTreeRoot *root = _sharedRBTreeRoot();
     deleteCTRBTreeNode(100, root);
 
     nodeToTest = root->rootNode;
@@ -382,6 +383,8 @@ TEST test_deleteRBTreeNode()
 
     nodeToTest = root->rootNode->childNode[1]->childNode[1]->childNode[1]->childNode[0];
     ASSERT(nodeToTest->key == 80);
+
+    cleanTree(root, true);
 
     PASS();
 }
