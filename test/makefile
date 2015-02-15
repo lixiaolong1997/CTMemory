@@ -7,7 +7,7 @@ CC = clang
 
 HEADER_PATH = -I./greatest/ -I../
 
-LINKED_OBJECTS = test_basic.o ctmemory.o test_rbtree.o ctrbtree.o
+LINKED_OBJECTS = test_basic.o ctmemory.o test_avltree.o ctrbtree.o
 
 all: clean test.run
 
@@ -23,11 +23,11 @@ clean:
 test_basic.o:
 	${CC} ${HEADER_PATH} ${CFLAGS} ${LDFLAGS} -g -o $@ -c test_basic.c
 
-test_rbtree.o:
-	${CC} ${HEADER_PATH} ${CFLAGS} ${LDFLAGS} -g -o $@ -c test_rbtree.c
+test_avltree.o:
+	${CC} ${HEADER_PATH} ${CFLAGS} ${LDFLAGS} -g -o $@ -c test_avltree.c
 
 ctmemory.o:
 	${CC} ${HEADER_PATH} ${CFLAGS} ${LDFLAGS} -pthread -g -o $@ -c ../CTMemory.c
 
 ctrbtree.o:
-	${CC} ${HEADER_PATH} ${CFLAGS} ${LDFLAGS} -pthread -g -o $@ -c ../CTRBTree.c
+	${CC} ${HEADER_PATH} ${CFLAGS} ${LDFLAGS} -pthread -g -o $@ -c ../CTAVLTree.c

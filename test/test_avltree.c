@@ -6,19 +6,19 @@
 #include <pthread.h>
 
 #include "greatest.h"
-#include "CTRBTree.h"
+#include "CTAVLTree.h"
 
-static struct CTRBTreeRoot *__sharedRoot;
+static struct CTAVLTreeRoot *__sharedRoot;
 
-void _createCTRBTreeRoot(void);
-struct CTRBTreeRoot *_sharedRBTreeRoot(void);
-struct CTRBTreeNode * createNode(uint64_t key);
+void _createCTAVLTreeRoot(void);
+struct CTAVLTreeRoot *_sharedAVLTreeRoot(void);
+struct CTAVLTreeNode * createNode(uint64_t key);
 
-SUITE(test_rbtree);
+SUITE(test_avltree);
 
-TEST test_insertRBTreeNode()
+TEST test_insertAVLTreeNode()
 {
-    struct CTRBTreeRoot *root = _sharedRBTreeRoot();
+    struct CTAVLTreeRoot *root = _sharedAVLTreeRoot();
     cleanTree(root, false);
     root->rootNode = NULL;
 
@@ -32,13 +32,13 @@ TEST test_insertRBTreeNode()
      *  9
      *
      * */
-    /* struct CTRBTreeNode *testNode = createNode(4); */
+    /* struct CTAVLTreeNode *testNode = createNode(4); */
     /* testNode = createNode(7); */
-    /* insertCTRBTreeNode(testNode, root); */
+    /* insertCTAVLTreeNode(testNode, root); */
     /* testNode = createNode(10); */
-    /* insertCTRBTreeNode(testNode, root); */
+    /* insertCTAVLTreeNode(testNode, root); */
     /* testNode = createNode(9); */
-    /* insertCTRBTreeNode(testNode, root); */
+    /* insertCTAVLTreeNode(testNode, root); */
 
     /* ASSERT(root->rootNode->key == 9); */
     /* ASSERT(root->rootNode->childNode[0]->key == 7); */
@@ -57,15 +57,15 @@ TEST test_insertRBTreeNode()
      *
      * */
 
-    struct CTRBTreeNode *nodeToTest = NULL;
+    struct CTAVLTreeNode *nodeToTest = NULL;
 
     /*
      *
      * 4
      *
      * */
-    struct CTRBTreeNode *node = createNode(4);
-    insertCTRBTreeNode(node, root);
+    struct CTAVLTreeNode *node = createNode(4);
+    insertCTAVLTreeNode(node, root);
     ASSERT(root->rootNode->key == 4);
 
     /* 
@@ -75,7 +75,7 @@ TEST test_insertRBTreeNode()
      *
      * */
     node = createNode(2);
-    insertCTRBTreeNode(node, root);
+    insertCTAVLTreeNode(node, root);
     nodeToTest = root->rootNode->childNode[0];
     ASSERT(nodeToTest->key == 2);
     ASSERT(root->rootNode->key == 4);
@@ -88,7 +88,7 @@ TEST test_insertRBTreeNode()
      *
      * */
     node = createNode(1);
-    insertCTRBTreeNode(node, root);
+    insertCTAVLTreeNode(node, root);
     ASSERT(root->rootNode->key == 2);
     nodeToTest = root->rootNode->childNode[0];
     ASSERT(nodeToTest->key == 1);
@@ -105,7 +105,7 @@ TEST test_insertRBTreeNode()
      *
      * */
     node = createNode(3);
-    insertCTRBTreeNode(node, root);
+    insertCTAVLTreeNode(node, root);
     ASSERT(root->rootNode->key == 2);
     nodeToTest = root->rootNode->childNode[0];
     ASSERT(nodeToTest->key == 1);
@@ -124,7 +124,7 @@ TEST test_insertRBTreeNode()
      *
      * */
     node = createNode(6);
-    insertCTRBTreeNode(node, root);
+    insertCTAVLTreeNode(node, root);
     ASSERT(root->rootNode->key == 2);
     nodeToTest = root->rootNode->childNode[0];
     ASSERT(nodeToTest->key == 1);
@@ -145,7 +145,7 @@ TEST test_insertRBTreeNode()
      *
      * */
     node = createNode(5);
-    insertCTRBTreeNode(node, root);
+    insertCTAVLTreeNode(node, root);
     ASSERT(root->rootNode->key == 4);
     nodeToTest = root->rootNode->childNode[0];
     ASSERT(nodeToTest->key == 2);
@@ -170,7 +170,7 @@ TEST test_insertRBTreeNode()
      *
      * */
     node = createNode(7);
-    insertCTRBTreeNode(node, root);
+    insertCTAVLTreeNode(node, root);
     ASSERT(root->rootNode->key == 4);
     nodeToTest = root->rootNode->childNode[0];
     ASSERT(nodeToTest->key == 2);
@@ -201,9 +201,9 @@ TEST test_insertRBTreeNode()
      *
      * */
     node = createNode(10);
-    insertCTRBTreeNode(node, root);
+    insertCTAVLTreeNode(node, root);
     node = createNode(9);
-    insertCTRBTreeNode(node, root);
+    insertCTAVLTreeNode(node, root);
 
     ASSERT(root->rootNode->key == 4);
     nodeToTest = root->rootNode->childNode[0];
@@ -240,7 +240,7 @@ TEST test_insertRBTreeNode()
      *
      * */
     node = createNode(50);
-    insertCTRBTreeNode(node, root);
+    insertCTAVLTreeNode(node, root);
 
     nodeToTest = root->rootNode->childNode[1];
     ASSERT(nodeToTest->key == 9);
@@ -256,19 +256,19 @@ TEST test_insertRBTreeNode()
     ASSERT(nodeToTest->key == 50);
 
     node = createNode(60);
-    insertCTRBTreeNode(node, root);
+    insertCTAVLTreeNode(node, root);
     node = createNode(70);
-    insertCTRBTreeNode(node, root);
+    insertCTAVLTreeNode(node, root);
     node = createNode(80);
-    insertCTRBTreeNode(node, root);
+    insertCTAVLTreeNode(node, root);
     node = createNode(90);
-    insertCTRBTreeNode(node, root);
+    insertCTAVLTreeNode(node, root);
     node = createNode(100);
-    insertCTRBTreeNode(node, root);
+    insertCTAVLTreeNode(node, root);
     node = createNode(75);
-    insertCTRBTreeNode(node, root);
+    insertCTAVLTreeNode(node, root);
     node = createNode(78);
-    insertCTRBTreeNode(node, root);
+    insertCTAVLTreeNode(node, root);
 
     nodeToTest = root->rootNode;
     ASSERT(nodeToTest->key == 9);
@@ -312,10 +312,10 @@ TEST test_insertRBTreeNode()
     PASS();
 }
 
-TEST test_deleteRBTreeNode()
+TEST test_deleteAVLTreeNode()
 {
-    struct CTRBTreeRoot *root = _sharedRBTreeRoot();
-    struct CTRBTreeNode *nodeToTest = NULL;
+    struct CTAVLTreeRoot *root = _sharedAVLTreeRoot();
+    struct CTAVLTreeNode *nodeToTest = NULL;
     /*
      *
      * before:
@@ -345,7 +345,7 @@ TEST test_deleteRBTreeNode()
      *                        80
      * */
 
-    deleteCTRBTreeNode(100, root);
+    deleteCTAVLTreeNode(100, root);
 
     nodeToTest = root->rootNode;
     ASSERT(nodeToTest->key == 9);
@@ -389,23 +389,23 @@ TEST test_deleteRBTreeNode()
     PASS();
 }
 
-TEST test_findRBTreeNode()
+TEST test_findAVLTreeNode()
 {
     PASS();
 }
 
 
-SUITE(test_rbtree) {
-    RUN_TEST(test_insertRBTreeNode);
-    RUN_TEST(test_deleteRBTreeNode);
-    RUN_TEST(test_findRBTreeNode);
+SUITE(test_avltree) {
+    RUN_TEST(test_insertAVLTreeNode);
+    RUN_TEST(test_deleteAVLTreeNode);
+    RUN_TEST(test_findAVLTreeNode);
 }
 
 /******************** private methods ********************/
 
-struct CTRBTreeNode * createNode(uint64_t key)
+struct CTAVLTreeNode * createNode(uint64_t key)
 {
-    struct CTRBTreeNode *node = (struct CTRBTreeNode *)malloc(sizeof(struct CTRBTreeNode));
+    struct CTAVLTreeNode *node = (struct CTAVLTreeNode *)malloc(sizeof(struct CTAVLTreeNode));
     node->key = key;
     node->parent = NULL;
     node->childNode[0] = NULL;
@@ -414,17 +414,17 @@ struct CTRBTreeNode * createNode(uint64_t key)
     return node;
 }
 
-void _createCTRBTreeRoot()
+void _createCTAVLTreeRoot()
 {
-    __sharedRoot = (struct CTRBTreeRoot *)malloc(sizeof(struct CTRBTreeRoot));
+    __sharedRoot = (struct CTAVLTreeRoot *)malloc(sizeof(struct CTAVLTreeRoot));
     __sharedRoot->rootNode = NULL;
 }
 
-struct CTRBTreeRoot *_sharedRBTreeRoot()
+struct CTAVLTreeRoot *_sharedAVLTreeRoot()
 {
     if (__sharedRoot == NULL) {
         static pthread_once_t onceToken = PTHREAD_ONCE_INIT;
-        pthread_once(&onceToken, _createCTRBTreeRoot);
+        pthread_once(&onceToken, _createCTAVLTreeRoot);
     }
     return __sharedRoot;
 }
