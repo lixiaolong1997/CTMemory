@@ -116,5 +116,5 @@ Sample
 Acknowledgements
 ----------------
 
-jemalloc: https://github.com/jemalloc/jemalloc
+jemalloc: https://github.com/jemalloc/jemalloc  
 greatest: https://github.com/silentbicycle/greatest 
