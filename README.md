@@ -25,8 +25,8 @@ Quick Usage
     void * ctAlloc(size_t size, void (* deallocMethod)(void *address));
 ```
 
-**size**: the memory size you want to allocate. The reference count will be 1 when memory allocated.  
-**deallocMethd**: a pointer refer to a function which will be called before free the memeory. You can set it to `NULL` if you don't want callback.  
+`size`: the memory size you want to allocate. The reference count will be 1 when memory allocated.  
+`deallocMethd`: a pointer refer to a function which will be called before free the memeory. You can set it to `NULL` if you don't want callback.  
 
 sample:
 
@@ -42,7 +42,7 @@ sample:
     void ctRelease(void *memory);
 ```
 
-**memory**: the memory you want to decrease the reference count. If reference count goes to 0, the memory will be freed. If the memory is not allocated with `ctAlloc`, nothing will happen.  
+`memory`: the memory you want to decrease the reference count. If reference count goes to 0, the memory will be freed. If the memory is not allocated with `ctAlloc`, nothing will happen.  
 
 sample:
 
@@ -58,7 +58,7 @@ sample:
     void ctRetain(void *memory);
 ```
 
-**memory**: the memory you want to increase the reference count. If the memory is not allocated with `ctAlloc`, nothing will happen.
+`memory`: the memory you want to increase the reference count. If the memory is not allocated with `ctAlloc`, nothing will happen.
 
 sample:
 
