@@ -1,6 +1,6 @@
 #CTMemory
 
-This is a reference counter for any C project, safe in multithreaded enviroment.
+This is a reference counter for any C project, safe in multithreaded environment.
 
 Before Compile
 --------------
