@@ -5,7 +5,7 @@ CFLAGS += -Wmissing-declarations
 
 CC = clang
 
-HEADER_PATH = -I./greatest/ -I../
+HEADER_PATH = -I./greatest/ -I../ -I/usr/local/include
 
 LINKED_OBJECTS = test_basic.o ctmemory.o test_avltree.o ctrbtree.o
 

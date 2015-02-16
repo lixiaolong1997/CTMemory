@@ -2,7 +2,7 @@
 #define __CTMEMORY_H__
 
 #include <pthread.h>
-#include <stdlib.h>
+#include <jemalloc/jemalloc.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include "CTAVLTree.h"
