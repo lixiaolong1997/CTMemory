@@ -5,11 +5,10 @@ This is a reference counter for any C project, safe in multithreaded environment
 Before Compile
 --------------
 
-- go to ./deps to install jemalloc in your system.
+- go to ./deps to install `jemalloc` in your system.
 
     ```
-        autoconf
-        configure
+        ./configure
         make
         make install
     ```
