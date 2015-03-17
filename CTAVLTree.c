@@ -37,14 +37,13 @@ struct CTAVLTreeNode * findCTAVLTreeNode(void * key, struct CTAVLTreeRoot *root)
 
         int result;
         if (root->compare == NULL) {
-            int r = (uint64_t)key - (uint64_t)foundedNode->key;
-            if (r > 0) {
+            if ((uint64_t)key > (uint64_t)foundedNode->key) {
                 result = CTAVLCMPRESULT_ASC;
             }
-            if (r < 0) {
+            if ((uint64_t)key < (uint64_t)foundedNode->key) {
                 result = CTAVLCMPRESULT_DEC;
             }
-            if (r == 0) {
+            if ((uint64_t)key == (uint64_t)foundedNode->key) {
                 result = CTAVLCMPRESULT_EQL;
             }
         } else {
